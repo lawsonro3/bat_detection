@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 # Create a VideoCapture object and read from input file
-cap = cv2.VideoCapture('/Users/icunitz/Desktop/bat_vids/2016-07-25_221513.avi') 
+cap = cv2.VideoCapture('/Users/icunitz/Desktop/bat_detection/bat_vids/2016-07-25_221513.avi') 
 
 # Check if camera opened successfully
 if (cap.isOpened()== False):
@@ -34,4 +34,3 @@ cap.release()
 
 # Closes all the frames
 cv2.destroyAllWindows()
-cv2.ShowImage()
