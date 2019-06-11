@@ -5,6 +5,7 @@ import os
 #img = cv2.imread('Users/Desktop/frames/2016-07-25_221513/frame360.jpg',0)  ## Opens up the image from another directory
 path = os.getcwd()
 file_extension = '.jpg'
+
 for file in os.listdir(path):
     if file.endswith(file_extension):
         filename, separator, extension = file.partition('.')
