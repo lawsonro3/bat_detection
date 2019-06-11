@@ -23,7 +23,7 @@ rows, cols = img.shape
 crow, ccol = int(rows/2) , int(cols/2)
 
 
-# Circular HPF mask, center circle is 0, remaining all ones
+## Circular HPF mask, center circle is 0, remaining all ones
 # mask = np.ones((rows, cols, 2), np.uint8)
 # r = 2000
 # center = [crow, ccol]
@@ -32,7 +32,7 @@ crow, ccol = int(rows/2) , int(cols/2)
 # mask[mask_area] = 1
 
 
-### Band pass filter
+## Band pass filter
 # mask = np.zeros((rows, cols, 2), np.uint8)
 # r_out = 150
 # r_in = 100
