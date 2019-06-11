@@ -1,19 +1,25 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import os
 
-img = cv2.imread('frame50.jpg',0)
+file = '2016-07-30_014634'
+frameno = '50'
+extension = '.jpg'
+readpath = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frameno + extension
+
+img = cv2.imread(readpath, 0)
 # f = np.fft.fft2(img)
 # fshift = np.fft.fftshift(f)
 # magnitude_spectrum = 20*np.log(np.abs(fshift))
 
-dft = cv2.dft(np.float32(img), flags=cv2.DFT_COMPLEX_OUTPUT)
+dft = cv2.dft(np.float32(img), flags = cv2.DFT_COMPLEX_OUTPUT)
 dft_shift = np.fft.fftshift(dft)
 
 magnitude_spectrum = 20 * np.log(cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
 
 rows, cols = img.shape
-#crow, ccol = int(rows/2) , int(cols/2.66666666666666667)
+# crow, ccol = int(rows/2) , int(cols/2.66666666666666667)
 crow, ccol = int(rows/2) , int(cols/2)
 
 
