@@ -57,9 +57,7 @@ print('\nPress any keys to progress.\n')
 # Convert original image to grayscale to show later
 img_withbat = cv2.cvtColor(img_withbat, cv2.COLOR_BGR2GRAY)
 
-# Record ROI coordinates and draw square
-roi_x = ref_location[-1][0]
-roi_y = ref_location[-1][1]
+# Draw square
 cv2.rectangle(img_withbat, (roi_x - n, roi_y - n), (roi_x + n, roi_y + n), (0, 0, 0), 2)
 
 # Show grayscale image with square
