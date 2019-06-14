@@ -22,7 +22,7 @@ window2Name = frameTitle_withbat + " Region of Interest"
 frameTitle_wobat = 'Frame ' + frameno_wobat
 window3Name = frameTitle_wobat + ' (w/o Bat)'
 
-n = 20 # Half of length of square sides
+n = 14 # Half of length of square sides
 
 ref_location = [] # Empty list to hold click locations
 
