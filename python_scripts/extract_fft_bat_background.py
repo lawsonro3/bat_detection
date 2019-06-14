@@ -2,7 +2,10 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 import os # Not currently using - figure out how to effectively use os.path.join
+
+plt.close() # Close any previous matplotlib.pyplot windows
 
 # Set up read paths
 file = input('Video Name: ') # Try 2016-07-30_014634
@@ -33,8 +36,6 @@ def click_event(event, x, y, flags, param):
         ref_location.append((x, y))
         ## Later - get squares to appear as you click?
         #cv2.rectangle(img_withbat, (x - n, y - n), (x + n, y + n), (0, 0, 0), 2)
-
-plt.close() # Close any previous matplotlib.pyplot windows
 
 # Set up original image window and callback function
 cv2.namedWindow(window1Name)
@@ -107,48 +108,70 @@ mag_spect_roi_wobat = takedft_roi_wobat[2]
 titlefontsize = 12
 subtitlefontsize = 10
 
-plt.figure(1)
+plt.figure(1, figsize=(12, 6))
 plt.suptitle(file + '; Region of Interest (ROI) Center: (%s, %s)' % (roi_x, roi_y), fontsize = titlefontsize)
 
-plt.subplot(2, 3, 1)
+plt.subplot(2, 4, 1)
 plt.cla()
 plt.imshow(img_withbat, cmap='gray')
 plt.title(frameTitle_withbat + ' (w/ Bat)', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 3, 2)
+plt.subplot(2, 4, 2)
 plt.cla()
 plt.imshow(roi_withbat, cmap='gray')
 plt.title('ROI w/ Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 3, 3)
+plt.subplot(2, 4, 3)
 plt.cla()
 plt.imshow(mag_spect_roi_withbat, cmap='gray')
 plt.title('FFT of ROI w/ Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 3, 4)
+ax1 = plt.subplot(2, 4, 4, projection='3d')
+plt.cla()
+X1, Y1 = np.meshgrid(range(2*n), range(2*n))
+Z1 = mag_spect_roi_withbat
+mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray')
+plt.title('FFT of ROI w/ Bat, 3D', fontsize = subtitlefontsize)
+mplot3d.Axes3D.set_zlim3d(ax1, bottom=0.0, top=200.0)
+mplot3d.Axes3D.set_zticks(ax1, [])
+plt.xticks([])
+plt.yticks([])
+
+plt.subplot(2, 4, 5)
 plt.cla()
 plt.imshow(img_wobat, cmap='gray')
 plt.title(frameTitle_wobat + ' (w/o Bat)', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 3, 5)
+plt.subplot(2, 4, 6)
 plt.cla()
 plt.imshow(roi_wobat, cmap='gray')
 plt.title('ROI w/o Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 3, 6)
+plt.subplot(2, 4, 7)
 plt.cla()
 plt.imshow(mag_spect_roi_wobat, cmap='gray')
 plt.title('FFT of ROI w/o Bat', fontsize = subtitlefontsize)
+plt.xticks([])
+plt.yticks([])
+
+ax2 = plt.subplot(2, 4, 8, projection='3d')
+plt.cla()
+X2, Y2 = np.meshgrid(range(2*n), range(2*n))
+Z2 = mag_spect_roi_wobat
+mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray')
+plt.title('FFT of ROI w/o Bat, 3D', fontsize = subtitlefontsize)
+mplot3d.Axes3D.set_zlim3d(ax2, bottom=0.0, top=200.0)
+mplot3d.Axes3D.set_zticks(ax2, [])
 plt.xticks([])
 plt.yticks([])
 
