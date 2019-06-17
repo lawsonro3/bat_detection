@@ -18,9 +18,8 @@ readpath2 = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + f
 # Set window names
 frameTitle1 = 'Frame ' + frame1
 window1Name = frameTitle1
-window2Name = frameTitle1 + " Region of Interest"
 frameTitle2 = 'Frame ' + frame2
-window3Name = frameTitle2
+window2Name = frameTitle2
 
 n = 20 # Half of length of square sides
 
@@ -72,14 +71,16 @@ ref_location2 = [] # Empty list to hold click locations on Frame 2
 img2 = cv2.imread(readpath2)
 clone2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
+cv2.namedWindow(window2Name)
+
 # Click event 2 - fix later
 def click_event2(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         ref_location2.append((x, y))
+        print("Cool")
 
 # Set up original image window and callback function
-cv2.namedWindow(window3Name)
-cv2.setMouseCallback(window3Name, click_event2)
+cv2.setMouseCallback(window2Name, click_event2)
 
 print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
 
@@ -102,7 +103,7 @@ img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 cv2.rectangle(img2, (roi2_x - n, roi2_y - n), (roi2_x + n, roi2_y + n), (0, 0, 0), 2)
 
 # Show grayscale frame 2 with square
-cv2.imshow(window3Name, img2)
+cv2.imshow(window2Name, img2)
 cv2.waitKey(0) & 0xFF
 
 # Crop frame 2 around same location
@@ -128,7 +129,7 @@ titlefontsize = 12
 subtitlefontsize = 10
 
 plt.figure(1, figsize=(12, 6))
-plt.suptitle(file + '; Region of Interest (ROI) Center: (%s, %s)' % (roi1_x, roi1_y), fontsize = titlefontsize)
+plt.suptitle(file + '; Bat Distance Comparison', fontsize = titlefontsize)
 
 plt.subplot(2, 4, 1)
 plt.cla()
@@ -139,7 +140,7 @@ plt.yticks([])
 
 plt.subplot(2, 4, 2)
 plt.cla()
-plt.imshow(roi1_x, cmap='gray')
+plt.imshow(roi1, cmap='gray')
 plt.title('ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
