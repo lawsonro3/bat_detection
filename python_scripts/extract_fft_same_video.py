@@ -138,7 +138,7 @@ else:
         norm = None
 
 plt.figure(1, figsize=(12, 6))
-plt.suptitle(file + '; Bat Distance Comparison', fontsize = titlefontsize)
+plt.suptitle(file + '; Same Bat Distance Comparison', fontsize = titlefontsize)
 
 plt.subplot(2, 4, 1)
 plt.cla()
