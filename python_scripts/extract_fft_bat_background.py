@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from mpl_toolkits import mplot3d
 import os # Not currently using - figure out how to effectively use os.path.join
 
@@ -18,9 +19,8 @@ readpath_wobat = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame
 # Set window names
 frameTitle_withbat = 'Frame ' + frameno_withbat
 window1Name = frameTitle_withbat + ' (w/ Bat)'
-window2Name = frameTitle_withbat + " Region of Interest"
 frameTitle_wobat = 'Frame ' + frameno_wobat
-window3Name = frameTitle_wobat + ' (w/o Bat)'
+window2Name = frameTitle_wobat + ' (w/o Bat)'
 
 n = 20 # Half of length of square sides
 
@@ -79,15 +79,11 @@ img_wobat = cv2.cvtColor(img_wobat, cv2.COLOR_BGR2GRAY)
 cv2.rectangle(img_wobat, (roi_x - n, roi_y - n), (roi_x + n, roi_y + n), (0, 0, 0), 2)
 
 # Show grayscale image w/o bat with square
-cv2.imshow(window3Name, img_wobat)
+cv2.imshow(window2Name, img_wobat)
 cv2.waitKey(0) & 0xFF
 
 # Crop image w/o bat around same location
 roi_wobat = clone_wobat[(roi_y - n):(roi_y + n), (roi_x - n):(roi_x + n)]
-
-## Show ROI in new window
-# cv2.imshow(window2Name, roi_withbat)
-# cv2.waitKey(0) & 0xFF
 
 cv2.destroyAllWindows()
 
@@ -104,30 +100,39 @@ mag_spect_roi_withbat = takedft_roi_withbat[2]
 takedft_roi_wobat = takedft(roi_wobat)
 mag_spect_roi_wobat = takedft_roi_wobat[2]
 
-# Show results
+## Show results
+
 titlefontsize = 12
 subtitlefontsize = 10
+
+# Set up grayscale normalization condition
+Normalization = False
+
+if Normalization:
+        norm = mpl.colors.Normalize(vmin = 0, vmax = 255)
+else:
+        norm = None
 
 plt.figure(1, figsize=(12, 6))
 plt.suptitle(file + '; Region of Interest (ROI) Center: (%s, %s)' % (roi_x, roi_y), fontsize = titlefontsize)
 
 plt.subplot(2, 4, 1)
 plt.cla()
-plt.imshow(img_withbat, cmap='gray')
+plt.imshow(img_withbat, cmap='gray', norm=norm)
 plt.title(frameTitle_withbat + ' (w/ Bat)', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 2)
 plt.cla()
-plt.imshow(roi_withbat, cmap='gray')
+plt.imshow(roi_withbat, cmap='gray', norm=norm)
 plt.title('ROI w/ Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 3)
 plt.cla()
-plt.imshow(mag_spect_roi_withbat, cmap='gray')
+plt.imshow(mag_spect_roi_withbat, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/ Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -136,7 +141,7 @@ ax1 = plt.subplot(2, 4, 4, projection='3d')
 plt.cla()
 X1, Y1 = np.meshgrid(range(2*n), range(2*n))
 Z1 = mag_spect_roi_withbat
-mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray')
+mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/ Bat, 3D', fontsize = subtitlefontsize)
 mplot3d.Axes3D.set_zlim3d(ax1, bottom=0.0, top=200.0)
 mplot3d.Axes3D.set_zticks(ax1, [])
@@ -145,21 +150,21 @@ plt.yticks([])
 
 plt.subplot(2, 4, 5)
 plt.cla()
-plt.imshow(img_wobat, cmap='gray')
+plt.imshow(img_wobat, cmap='gray', norm=norm)
 plt.title(frameTitle_wobat + ' (w/o Bat)', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 6)
 plt.cla()
-plt.imshow(roi_wobat, cmap='gray')
+plt.imshow(roi_wobat, cmap='gray', norm=norm)
 plt.title('ROI w/o Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 7)
 plt.cla()
-plt.imshow(mag_spect_roi_wobat, cmap='gray')
+plt.imshow(mag_spect_roi_wobat, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/o Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -168,7 +173,7 @@ ax2 = plt.subplot(2, 4, 8, projection='3d')
 plt.cla()
 X2, Y2 = np.meshgrid(range(2*n), range(2*n))
 Z2 = mag_spect_roi_wobat
-mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray')
+mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/o Bat, 3D', fontsize = subtitlefontsize)
 mplot3d.Axes3D.set_zlim3d(ax2, bottom=0.0, top=200.0)
 mplot3d.Axes3D.set_zticks(ax2, [])

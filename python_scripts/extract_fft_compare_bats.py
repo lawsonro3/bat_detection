@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from mpl_toolkits import mplot3d
 import os # Not currently using - figure out how to effectively use os.path.join
 
@@ -77,7 +78,6 @@ cv2.namedWindow(window2Name)
 def click_event2(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         ref_location2.append((x, y))
-        print("Cool")
 
 # Set up original image window and callback function
 cv2.setMouseCallback(window2Name, click_event2)
@@ -124,30 +124,39 @@ mag_spect_roi1 = takedft_roi1[2]
 takedft_roi2 = takedft(roi2)
 mag_spect_roi2 = takedft_roi2[2]
 
-# Show results
+## Show results
+
 titlefontsize = 12
 subtitlefontsize = 10
+
+# Set up grayscale normalization condition
+Normalization = False
+
+if Normalization:
+        norm = mpl.colors.Normalize(vmin = 0, vmax = 255)
+else:
+        norm = None
 
 plt.figure(1, figsize=(12, 6))
 plt.suptitle(file + '; Bat Distance Comparison', fontsize = titlefontsize)
 
 plt.subplot(2, 4, 1)
 plt.cla()
-plt.imshow(img1, cmap='gray')
+plt.imshow(img1, cmap='gray', norm=norm)
 plt.title(frameTitle1, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 2)
 plt.cla()
-plt.imshow(roi1, cmap='gray')
+plt.imshow(roi1, cmap='gray', norm=norm)
 plt.title('ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 3)
 plt.cla()
-plt.imshow(mag_spect_roi1, cmap='gray')
+plt.imshow(mag_spect_roi1, cmap='gray', norm=norm)
 plt.title('FFT of ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -156,7 +165,7 @@ ax1 = plt.subplot(2, 4, 4, projection='3d')
 plt.cla()
 X1, Y1 = np.meshgrid(range(2*n), range(2*n))
 Z1 = mag_spect_roi1
-mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray')
+mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray', norm=norm)
 plt.title('FFT of ROI, 3D', fontsize = subtitlefontsize)
 mplot3d.Axes3D.set_zlim3d(ax1, bottom=0.0, top=200.0)
 mplot3d.Axes3D.set_zticks(ax1, [])
@@ -165,21 +174,21 @@ plt.yticks([])
 
 plt.subplot(2, 4, 5)
 plt.cla()
-plt.imshow(img2, cmap='gray')
+plt.imshow(img2, cmap='gray', norm=norm)
 plt.title(frameTitle2, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 6)
 plt.cla()
-plt.imshow(roi2, cmap='gray')
+plt.imshow(roi2, cmap='gray', norm=norm)
 plt.title('ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(2, 4, 7)
 plt.cla()
-plt.imshow(mag_spect_roi2, cmap='gray')
+plt.imshow(mag_spect_roi2, cmap='gray', norm=norm)
 plt.title('FFT of ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -188,7 +197,7 @@ ax2 = plt.subplot(2, 4, 8, projection='3d')
 plt.cla()
 X2, Y2 = np.meshgrid(range(2*n), range(2*n))
 Z2 = mag_spect_roi2
-mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray')
+mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray', norm=norm)
 plt.title('FFT of ROI, 3D', fontsize = subtitlefontsize)
 mplot3d.Axes3D.set_zlim3d(ax2, bottom=0.0, top=200.0)
 mplot3d.Axes3D.set_zticks(ax2, [])
