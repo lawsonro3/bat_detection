@@ -102,8 +102,8 @@ mag_spect_roi_withbat = takedft_roi_withbat[2]
 takedft_roi_wobat = takedft(roi_wobat)
 mag_spect_roi_wobat = takedft_roi_wobat[2]
 
-# Correlate correlation of FFTs
-correlation = signal.correlate2d(mag_spect_roi_withbat, mag_spect_roi_wobat, mode='full', boundary='fill', fillvalue=0)
+# Correlate FFTs
+correlation = signal.correlate2d(mag_spect_roi_withbat, mag_spect_roi_wobat)
 
 # Calculate SSIM of FFTs
 ssim, ssim_image = ssim(mag_spect_roi_withbat, mag_spect_roi_wobat, full=True)
@@ -112,6 +112,8 @@ ssim, ssim_image = ssim(mag_spect_roi_withbat, mag_spect_roi_wobat, full=True)
 
 titlefontsize = 12
 subtitlefontsize = 10
+figrows = 3
+figcolumns = 4
 
 # Set up grayscale normalization condition
 Normalization = True
@@ -121,31 +123,31 @@ if Normalization:
 else:
         norm = None
 
-plt.figure(1, figsize=(12, 9))
+plt.figure(1, figsize=(figcolumns*3, figrows*3))
 plt.suptitle(file + '; Region of Interest (ROI) Center: (%s, %s)' % (roi_x, roi_y), fontsize = titlefontsize)
 
-plt.subplot(3, 4, 1)
+plt.subplot(figrows, figcolumns, 1)
 plt.cla()
 plt.imshow(img_withbat, cmap='gray', norm=norm)
 plt.title(frameTitle_withbat + ' (w/ Bat)', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 2)
+plt.subplot(figrows, figcolumns, 2)
 plt.cla()
 plt.imshow(roi_withbat, cmap='gray', norm=norm)
 plt.title('ROI w/ Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 3)
+plt.subplot(figrows, figcolumns, 3)
 plt.cla()
 plt.imshow(mag_spect_roi_withbat, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/ Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-ax1 = plt.subplot(3, 4, 4, projection='3d')
+ax1 = plt.subplot(figrows, figcolumns, 4, projection='3d')
 plt.cla()
 X1, Y1 = np.meshgrid(range(2*n), range(2*n))
 Z1 = mag_spect_roi_withbat
@@ -156,28 +158,28 @@ mplot3d.Axes3D.set_zticks(ax1, [])
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 5)
+plt.subplot(figrows, figcolumns, 5)
 plt.cla()
 plt.imshow(img_wobat, cmap='gray', norm=norm)
 plt.title(frameTitle_wobat + ' (w/o Bat)', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 6)
+plt.subplot(figrows, figcolumns, 6)
 plt.cla()
 plt.imshow(roi_wobat, cmap='gray', norm=norm)
 plt.title('ROI w/o Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 7)
+plt.subplot(figrows, figcolumns, 7)
 plt.cla()
 plt.imshow(mag_spect_roi_wobat, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/o Bat', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-ax2 = plt.subplot(3, 4, 8, projection='3d')
+ax2 = plt.subplot(figrows, figcolumns, 8, projection='3d')
 plt.cla()
 X2, Y2 = np.meshgrid(range(2*n), range(2*n))
 Z2 = mag_spect_roi_wobat
@@ -188,21 +190,21 @@ mplot3d.Axes3D.set_zticks(ax2, [])
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 9)
+plt.subplot(figrows, figcolumns, 9)
 plt.cla()
 plt.imshow(correlation, cmap='gray')
 plt.title('Correlation Image of FFTs', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 10)
+plt.subplot(figrows, figcolumns, 10)
 plt.cla()
 plt.imshow(ssim_image, cmap='gray')
 plt.title('SSIM Image of FFTs', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(3, 4, 11)
+plt.subplot(figrows, figcolumns, 11)
 plt.cla()
 plt.text(0.25, 0.5, 'SSIM = %s' % round(ssim, 4))
 plt.xticks([])
