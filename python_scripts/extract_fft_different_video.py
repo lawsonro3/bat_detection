@@ -20,9 +20,9 @@ readpath1 = '/Users/icunitz/Desktop/bat_detection/frames/' + file1 + '/frame' + 
 readpath2 = '/Users/icunitz/Desktop/bat_detection/frames/' + file2 + '/frame' + frame2 + frameextension
 
 # Set window names
-frameTitle1 = 'Video ' + file1 + ' Frame ' + frame1
+frameTitle1 = 'Video ' + file1 + ', Frame ' + frame1
 window1Name = frameTitle1
-frameTitle2 = 'Video ' + file2 + ' Frame ' + frame2
+frameTitle2 = 'Video ' + file2 + ', Frame ' + frame2
 window2Name = frameTitle2
 
 n = 20 # Half of length of square sides
@@ -52,7 +52,7 @@ cv2.waitKey(0) & 0xFF
 roi1_x = ref_location1[-1][0]
 roi1_y = ref_location1[-1][1]
 
-print ('Location of Interest, Frame %s: (%s, %s)' % (frame1, roi1_x, roi1_y))
+print ('Location of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame1, roi1_x, roi1_y))
 
 print('\nPress any keys to progress.\n')
 
@@ -95,7 +95,7 @@ cv2.waitKey(0) & 0xFF
 roi2_x = ref_location2[-1][0]
 roi2_y = ref_location2[-1][1]
 
-print ('Location of Interest, Frame %s: (%s, %s)' % (frame2, roi2_x, roi2_y))
+print ('Location of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame2, roi2_x, roi2_y))
 
 print('\nPress any keys to progress.\n')
 

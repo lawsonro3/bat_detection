@@ -19,10 +19,10 @@ readpath_withbat = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/fra
 readpath_wobat = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frameno_wobat + frameextension
 
 # Set window names
-frameTitle_withbat = 'Frame ' + frameno_withbat
-window1Name = frameTitle_withbat + ' (w/ Bat)'
-frameTitle_wobat = 'Frame ' + frameno_wobat
-window2Name = frameTitle_wobat + ' (w/o Bat)'
+frameTitle_withbat = 'Video ' + file + ', Frame ' + frameno_withbat
+window1Name = frameTitle_withbat
+frameTitle_wobat = 'Video ' + file + ', Frame ' + frameno_wobat
+window2Name = frameTitle_wobat
 
 n = 20 # Half of length of square sides
 
@@ -124,12 +124,12 @@ else:
         norm = None
 
 plt.figure(1, figsize=(figcolumns*3, figrows*3))
-plt.suptitle(file + '; Region of Interest (ROI) Center: (%s, %s)' % (roi_x, roi_y), fontsize = titlefontsize)
+plt.suptitle(file + ', Same Location Comparison; ROI Center: (%s, %s)' % (roi_x, roi_y), fontsize = titlefontsize)
 
 plt.subplot(figrows, figcolumns, 1)
 plt.cla()
 plt.imshow(img_withbat, cmap='gray', norm=norm)
-plt.title(frameTitle_withbat + ' (w/ Bat)', fontsize = subtitlefontsize)
+plt.title(frameTitle_withbat, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
@@ -161,7 +161,7 @@ plt.yticks([])
 plt.subplot(figrows, figcolumns, 5)
 plt.cla()
 plt.imshow(img_wobat, cmap='gray', norm=norm)
-plt.title(frameTitle_wobat + ' (w/o Bat)', fontsize = subtitlefontsize)
+plt.title(frameTitle_wobat, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
@@ -199,12 +199,18 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 10)
 plt.cla()
+plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation[40][40], 4))
+plt.xticks([])
+plt.yticks([])
+
+plt.subplot(figrows, figcolumns, 11)
+plt.cla()
 plt.imshow(ssim_image, cmap='gray')
 plt.title('SSIM Image of FFTs', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(figrows, figcolumns, 11)
+plt.subplot(figrows, figcolumns, 12)
 plt.cla()
 plt.text(0.25, 0.5, 'SSIM = %s' % round(ssim, 4))
 plt.xticks([])

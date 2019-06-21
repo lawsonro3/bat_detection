@@ -19,9 +19,9 @@ readpath1 = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + f
 readpath2 = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frame2 + frameextension
 
 # Set window names
-frameTitle1 = 'Frame ' + frame1
+frameTitle1 = 'Video ' + file + ', Frame ' + frame1
 window1Name = frameTitle1
-frameTitle2 = 'Frame ' + frame2
+frameTitle2 = 'Video ' + file + ', Frame ' + frame2
 window2Name = frameTitle2
 
 n = 20 # Half of length of square sides
@@ -148,7 +148,7 @@ else:
         norm = None
 
 plt.figure(1, figsize=(figcolumns*3, figrows*3))
-plt.suptitle(file + '; Same Bat Distance Comparison', fontsize = titlefontsize)
+plt.suptitle(file + ', Same Bat Comparison', fontsize = titlefontsize)
 
 plt.subplot(figrows, figcolumns, 1)
 plt.cla()
@@ -241,8 +241,5 @@ plt.xticks([])
 plt.yticks([])
 
 plt.show()
-
-print('Center of Correlation Image: ' + str(correlation[40][40]))
-print('Center of SSIM Image: ' + str(ssim_image[20][20]))
 
 print ("Done")
