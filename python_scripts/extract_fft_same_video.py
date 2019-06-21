@@ -24,7 +24,8 @@ window1Name = frameTitle1
 frameTitle2 = 'Video ' + file + ', Frame ' + frame2
 window2Name = frameTitle2
 
-n = 20 # Half of length of square sides
+n = 20
+s = n * 2 + 1 # Length of square sides
 
 ref_location1 = [] # Empty list to hold click locations on Frame 1
 
@@ -66,7 +67,7 @@ cv2.imshow(window1Name, img1)
 cv2.waitKey(0) & 0xFF
 
 # Crop frame 1 around last clicked location
-roi1 = clone1[(roi1_y - n):(roi1_y + n), (roi1_x - n):(roi1_x + n)]
+roi1 = clone1[(roi1_y - n):(roi1_y + n + 1), (roi1_x - n):(roi1_x + n + 1)]
 
 ref_location2 = [] # Empty list to hold click locations on Frame 2
 
@@ -109,7 +110,7 @@ cv2.imshow(window2Name, img2)
 cv2.waitKey(0) & 0xFF
 
 # Crop frame 2 around same location
-roi2 = clone2[(roi2_y - n):(roi2_y + n), (roi2_x - n):(roi2_x + n)]
+roi2 = clone2[(roi2_y - n):(roi2_y + n + 1), (roi2_x - n):(roi2_x + n + 1)]
 
 cv2.destroyAllWindows()
 
@@ -127,10 +128,14 @@ takedft_roi2 = takedft(roi2)
 mag_spect_roi2 = takedft_roi2[2]
 
 # Correlate FFTs
-correlation = signal.correlate2d(mag_spect_roi1, mag_spect_roi2, fillvalue=255)
+correlation = signal.correlate2d(mag_spect_roi1, mag_spect_roi2, fillvalue=0)
 
 # Calculate SSIM of FFTs
-ssim, ssim_image = ssim(mag_spect_roi1, mag_spect_roi2, full=True)
+avg_ssim, ssim_image = ssim(mag_spect_roi1, mag_spect_roi2, full=True)
+
+# Image similarity results (at center, where FFTs are aligned)
+ssim_value = ssim_image[n][n]
+correlation_value = correlation[2*n][2*n]
 
 ## Show results
 
@@ -173,7 +178,7 @@ plt.yticks([])
 
 ax1 = plt.subplot(figrows, figcolumns, 4, projection='3d')
 plt.cla()
-X1, Y1 = np.meshgrid(range(2*n), range(2*n))
+X1, Y1 = np.meshgrid(range(s), range(s))
 Z1 = mag_spect_roi1
 mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray', norm=norm)
 plt.title('FFT of ROI, 3D', fontsize = subtitlefontsize)
@@ -205,7 +210,7 @@ plt.yticks([])
 
 ax2 = plt.subplot(figrows, figcolumns, 8, projection='3d')
 plt.cla()
-X2, Y2 = np.meshgrid(range(2*n), range(2*n))
+X2, Y2 = np.meshgrid(range(s), range(s))
 Z2 = mag_spect_roi2
 mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray', norm=norm)
 plt.title('FFT of ROI, 3D', fontsize = subtitlefontsize)
@@ -223,7 +228,7 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 10)
 plt.cla()
-plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation[40][40], 4))
+plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation_value, 4))
 plt.xticks([])
 plt.yticks([])
 
@@ -236,7 +241,7 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 12)
 plt.cla()
-plt.text(0.25, 0.5, 'SSIM = %s' % round(ssim_image[20][20], 4))
+plt.text(0.25, 0.5, 'SSIM = %s' % round(ssim_value, 4))
 plt.xticks([])
 plt.yticks([])
 

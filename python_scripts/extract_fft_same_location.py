@@ -24,7 +24,8 @@ window1Name = frameTitle_withbat
 frameTitle_wobat = 'Video ' + file + ', Frame ' + frameno_wobat
 window2Name = frameTitle_wobat
 
-n = 20 # Half of length of square sides
+n = 20
+s = n * 2 + 1 # Length of square sides
 
 ref_location = [] # Empty list to hold click locations
 
@@ -68,7 +69,7 @@ cv2.imshow(window1Name, img_withbat)
 cv2.waitKey(0) & 0xFF
 
 # Crop image around last clicked location
-roi_withbat = clone_withbat[(roi_y - n):(roi_y + n), (roi_x - n):(roi_x + n)]
+roi_withbat = clone_withbat[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
 
 # Read original image w/o bat and create grayscale copy
 img_wobat = cv2.imread(readpath_wobat)
@@ -85,7 +86,7 @@ cv2.imshow(window2Name, img_wobat)
 cv2.waitKey(0) & 0xFF
 
 # Crop image w/o bat around same location
-roi_wobat = clone_wobat[(roi_y - n):(roi_y + n), (roi_x - n):(roi_x + n)]
+roi_wobat = clone_wobat[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
 
 cv2.destroyAllWindows()
 
@@ -103,10 +104,14 @@ takedft_roi_wobat = takedft(roi_wobat)
 mag_spect_roi_wobat = takedft_roi_wobat[2]
 
 # Correlate FFTs
-correlation = signal.correlate2d(mag_spect_roi_withbat, mag_spect_roi_wobat)
+correlation = signal.correlate2d(mag_spect_roi_withbat, mag_spect_roi_wobat, fillvalue=0)
 
 # Calculate SSIM of FFTs
-ssim, ssim_image = ssim(mag_spect_roi_withbat, mag_spect_roi_wobat, full=True)
+avg_ssim, ssim_image = ssim(mag_spect_roi_withbat, mag_spect_roi_wobat, full=True)
+
+# Image similarity results (at center, where FFTs are aligned)
+ssim_value = ssim_image[n][n]
+correlation_value = correlation[2*n][2*n]
 
 ## Show results
 
@@ -149,7 +154,7 @@ plt.yticks([])
 
 ax1 = plt.subplot(figrows, figcolumns, 4, projection='3d')
 plt.cla()
-X1, Y1 = np.meshgrid(range(2*n), range(2*n))
+X1, Y1 = np.meshgrid(range(s), range(s))
 Z1 = mag_spect_roi_withbat
 mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/ Bat, 3D', fontsize = subtitlefontsize)
@@ -181,7 +186,7 @@ plt.yticks([])
 
 ax2 = plt.subplot(figrows, figcolumns, 8, projection='3d')
 plt.cla()
-X2, Y2 = np.meshgrid(range(2*n), range(2*n))
+X2, Y2 = np.meshgrid(range(s), range(s))
 Z2 = mag_spect_roi_wobat
 mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray', norm=norm)
 plt.title('FFT of ROI w/o Bat, 3D', fontsize = subtitlefontsize)
@@ -199,7 +204,7 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 10)
 plt.cla()
-plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation[40][40], 4))
+plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation_value, 4))
 plt.xticks([])
 plt.yticks([])
 
@@ -212,7 +217,7 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 12)
 plt.cla()
-plt.text(0.25, 0.5, 'SSIM = %s' % round(ssim, 4))
+plt.text(0.25, 0.5, 'SSIM = %s' % round(ssim_value, 4))
 plt.xticks([])
 plt.yticks([])
 
