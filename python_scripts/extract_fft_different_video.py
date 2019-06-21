@@ -127,10 +127,18 @@ mag_spect_roi1 = takedft_roi1[2]
 takedft_roi2 = takedft(roi2)
 mag_spect_roi2 = takedft_roi2[2]
 
+# Correlate FFTs
+correlation = signal.correlate2d(mag_spect_roi1, mag_spect_roi2, fillvalue=255)
+
+# Calculate SSIM of FFTs
+ssim, ssim_image = ssim(mag_spect_roi1, mag_spect_roi2, full=True)
+
 ## Show results
 
 titlefontsize = 12
 subtitlefontsize = 10
+figrows = 3
+figcolumns = 4
 
 # Set up grayscale normalization condition
 Normalization = False
@@ -140,31 +148,31 @@ if Normalization:
 else:
         norm = None
 
-plt.figure(1, figsize=(12, 6))
+plt.figure(1, figsize=(figcolumns*3, figrows*3))
 plt.suptitle('%s vs. %s Comparison' % (file1, file2), fontsize = titlefontsize)
 
-plt.subplot(2, 4, 1)
+plt.subplot(figrows, figcolumns, 1)
 plt.cla()
 plt.imshow(img1, cmap='gray', norm=norm)
 plt.title(frameTitle1, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 4, 2)
+plt.subplot(figrows, figcolumns, 2)
 plt.cla()
 plt.imshow(roi1, cmap='gray', norm=norm)
 plt.title('ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 4, 3)
+plt.subplot(figrows, figcolumns, 3)
 plt.cla()
 plt.imshow(mag_spect_roi1, cmap='gray', norm=norm)
 plt.title('FFT of ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-ax1 = plt.subplot(2, 4, 4, projection='3d')
+ax1 = plt.subplot(figrows, figcolumns, 4, projection='3d')
 plt.cla()
 X1, Y1 = np.meshgrid(range(2*n), range(2*n))
 Z1 = mag_spect_roi1
@@ -175,28 +183,28 @@ mplot3d.Axes3D.set_zticks(ax1, [])
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 4, 5)
+plt.subplot(figrows, figcolumns, 5)
 plt.cla()
 plt.imshow(img2, cmap='gray', norm=norm)
 plt.title(frameTitle2, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 4, 6)
+plt.subplot(figrows, figcolumns, 6)
 plt.cla()
 plt.imshow(roi2, cmap='gray', norm=norm)
 plt.title('ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-plt.subplot(2, 4, 7)
+plt.subplot(figrows, figcolumns, 7)
 plt.cla()
 plt.imshow(mag_spect_roi2, cmap='gray', norm=norm)
 plt.title('FFT of ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
-ax2 = plt.subplot(2, 4, 8, projection='3d')
+ax2 = plt.subplot(figrows, figcolumns, 8, projection='3d')
 plt.cla()
 X2, Y2 = np.meshgrid(range(2*n), range(2*n))
 Z2 = mag_spect_roi2
@@ -204,6 +212,32 @@ mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray', norm=norm)
 plt.title('FFT of ROI, 3D', fontsize = subtitlefontsize)
 mplot3d.Axes3D.set_zlim3d(ax2, bottom=0.0, top=200.0)
 mplot3d.Axes3D.set_zticks(ax2, [])
+plt.xticks([])
+plt.yticks([])
+
+plt.subplot(figrows, figcolumns, 9)
+plt.cla()
+plt.imshow(correlation, cmap='gray')
+plt.title('Correlation Image of FFTs', fontsize = subtitlefontsize)
+plt.xticks([])
+plt.yticks([])
+
+plt.subplot(figrows, figcolumns, 10)
+plt.cla()
+plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation[40][40], 4))
+plt.xticks([])
+plt.yticks([])
+
+plt.subplot(figrows, figcolumns, 11)
+plt.cla()
+plt.imshow(ssim_image, cmap='gray')
+plt.title('SSIM Image of FFTs', fontsize = subtitlefontsize)
+plt.xticks([])
+plt.yticks([])
+
+plt.subplot(figrows, figcolumns, 12)
+plt.cla()
+plt.text(0.25, 0.5, 'SSIM = %s' % round(ssim_image[20][20], 4))
 plt.xticks([])
 plt.yticks([])
 
