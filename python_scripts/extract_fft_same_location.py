@@ -18,36 +18,83 @@ frameextension = '.jpg'
 readpath_withbat = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frameno_withbat + frameextension # Customize this based on directories in computer
 readpath_wobat = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frameno_wobat + frameextension
 
-# Set window names
-frameTitle_withbat = 'Video ' + file + ', Frame ' + frameno_withbat
-window1Name = frameTitle_withbat
-frameTitle_wobat = 'Video ' + file + ', Frame ' + frameno_wobat
-window2Name = frameTitle_wobat
-
 n = 20
 s = n * 2 + 1 # Length of square sides
 
+# Set window names
+frameTitle_withbat = 'Video ' + file + ', Frame ' + frameno_withbat
+window1Name = frameTitle_withbat
+window2Name = frameTitle_withbat + ', Rotated'
+frameTitle_wobat = 'Video ' + file + ', Frame ' + frameno_wobat
+window3Name = frameTitle_wobat + ', Rotated'
+
 ref_location = [] # Empty list to hold click locations
 
-# Read original image and create grayscale copy
-img_withbat = cv2.imread(readpath_withbat)
-clone_withbat = cv2.cvtColor(img_withbat, cv2.COLOR_BGR2GRAY)
+# Set up variables for click event 1
+drawLine = False
+xi, yi = 0, 0
+xf, yf = 0, 0
 
-# Click event
-def click_event(event, x, y, flags, param):
+# Click event 1
+def click_event1(event, x, y, flags, param):
+        global xi, yi, xf, yf, drawLine
+        if event == cv2.EVENT_LBUTTONDOWN:
+                drawLine = True
+                xi, yi = x, y
+        if event == cv2.EVENT_LBUTTONUP:
+                if drawLine:
+                        drawLine = False
+                        xf, yf = x, y
+
+# Click event 2
+def click_event2(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         ref_location.append((x, y))
-        ## Later - get squares to appear as you click?
-        #cv2.rectangle(img_withbat, (x - n, y - n), (x + n, y + n), (0, 0, 0), 2)
-
-# Set up original image window and callback function
-cv2.namedWindow(window1Name)
-cv2.setMouseCallback(window1Name, click_event)
-
-print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
 
 # Show original image
+img_withbat = cv2.imread(readpath_withbat)
+cv2.namedWindow(window1Name)
+cv2.setMouseCallback(window1Name, click_event1)
 cv2.imshow(window1Name, img_withbat)
+cv2.waitKey(0) & 0xFF
+
+# Define angle finding function
+def find_angle(x1, y1, x2, y2):
+        det = (y2 - y1) / (x2 - x1)
+        angle_rad = np.arctan(det)
+        angle_deg = angle_rad * (180 / np.pi)
+        return angle_deg
+
+# Find rotation angle from clicked points
+found_angle = find_angle(xi, yi, xf, yf)
+if found_angle < 0:
+        rotation_angle = 90 + found_angle
+else:
+        rotation_angle = 90 - found_angle
+print (found_angle)
+print (rotation_angle)
+# rotation_angle = 90
+
+# Define rotating image function
+def rotate(image_name, a_deg):
+        rows, cols = image_name.shape[:2]
+
+        a_rad = a_deg * (np.pi / 180)
+        r = int(rows*np.cos(a_rad) + cols*np.sin(a_rad))
+        c = int(cols*np.cos(a_rad) + rows*np.sin(a_rad))
+
+        M = cv2.getRotationMatrix2D((cols/2, rows/2), a_deg, 1)
+        M[0,2] += (c - cols) / 2
+        M[1,2] += (r - rows) / 2
+        return cv2.warpAffine(image_name, M, (c, r))
+        
+print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
+
+# Rotate image and show rotated version
+img_withbat_rotated = rotate(img_withbat, rotation_angle)
+cv2.namedWindow(window2Name)
+cv2.setMouseCallback(window2Name, click_event2)
+cv2.imshow(window2Name, img_withbat_rotated)
 cv2.waitKey(0) & 0xFF
 
 # Coordinates of last clicked region
@@ -58,35 +105,33 @@ print ('Location of Interest: (' + str(roi_x) + ', ' + str(roi_y) + ')')
 
 print('\nPress any keys to progress.\n')
 
-# Convert original image to grayscale to show later
-img_withbat = cv2.cvtColor(img_withbat, cv2.COLOR_BGR2GRAY)
+# Convert rotated image to grayscale and clone
+clone_img_withbat_rotated = cv2.cvtColor(img_withbat_rotated, cv2.COLOR_BGR2GRAY)
+img_withbat_rotated_gray = cv2.cvtColor(img_withbat_rotated, cv2.COLOR_BGR2GRAY)
 
-# Draw square
-cv2.rectangle(img_withbat, (roi_x - n, roi_y - n), (roi_x + n, roi_y + n), (0, 0, 0), 2)
-
-# Show grayscale image with square
-cv2.imshow(window1Name, img_withbat)
+# Show grayscale rotated image with square
+cv2.rectangle(img_withbat_rotated_gray, (roi_x - n, roi_y - n), (roi_x + n, roi_y + n), (0, 0, 0), 2)
+cv2.imshow(window2Name, img_withbat_rotated_gray)
 cv2.waitKey(0) & 0xFF
 
 # Crop image around last clicked location
-roi_withbat = clone_withbat[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
+roi_withbat = clone_img_withbat_rotated[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
 
-# Read original image w/o bat and create grayscale copy
+# Read in original image w/o bat
 img_wobat = cv2.imread(readpath_wobat)
-clone_wobat = cv2.cvtColor(img_wobat, cv2.COLOR_BGR2GRAY)
 
-# Convert original image w/o bat to grayscale to show later
-img_wobat = cv2.cvtColor(img_wobat, cv2.COLOR_BGR2GRAY)
+#Rotate image, convert to grayscale, and clone
+img_wobat_rotated = rotate(img_wobat, rotation_angle)
+clone_img_wobat_rotated = cv2.cvtColor(img_wobat_rotated, cv2.COLOR_BGR2GRAY)
+img_wobat_rotated_gray = cv2.cvtColor(img_wobat_rotated, cv2.COLOR_BGR2GRAY)
 
-# Draw square around region of interest in image w/o bat
-cv2.rectangle(img_wobat, (roi_x - n, roi_y - n), (roi_x + n, roi_y + n), (0, 0, 0), 2)
-
-# Show grayscale image w/o bat with square
-cv2.imshow(window2Name, img_wobat)
+# Show grayscale rotated image w/o bat with square
+cv2.rectangle(img_wobat_rotated_gray, (roi_x - n, roi_y - n), (roi_x + n, roi_y + n), (0, 0, 0), 2)
+cv2.imshow(window3Name, img_wobat_rotated_gray)
 cv2.waitKey(0) & 0xFF
 
 # Crop image w/o bat around same location
-roi_wobat = clone_wobat[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
+roi_wobat = clone_img_wobat_rotated[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
 
 cv2.destroyAllWindows()
 
@@ -129,11 +174,11 @@ else:
         norm = None
 
 plt.figure(1, figsize=(figcolumns*3, figrows*3))
-plt.suptitle(file + ', Same Location Comparison; ROI Center: (%s, %s)' % (roi_x, roi_y), fontsize = titlefontsize)
+plt.suptitle(file + ', Same Location Comparison', fontsize = titlefontsize)
 
 plt.subplot(figrows, figcolumns, 1)
 plt.cla()
-plt.imshow(img_withbat, cmap='gray', norm=norm)
+plt.imshow(img_withbat_rotated_gray, cmap='gray', norm=norm)
 plt.title(frameTitle_withbat, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -165,7 +210,7 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 5)
 plt.cla()
-plt.imshow(img_wobat, cmap='gray', norm=norm)
+plt.imshow(img_wobat_rotated_gray, cmap='gray', norm=norm)
 plt.title(frameTitle_wobat, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
