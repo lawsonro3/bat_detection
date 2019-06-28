@@ -67,36 +67,50 @@ def find_angle(x1, y1, x2, y2):
 
 # Find rotation angle from clicked points
 found_angle = find_angle(xi, yi, xf, yf)
-rotation_angle = 90 + found_angle
-print (found_angle)
-print (rotation_angle)
-# rotation_angle = 100
 
-# Define rotating image function
-def rotate(image_name, a_deg):
+# Define rotate image function
+def rotate(image_name, a_found):
         global xi, yi, xf, yf
         
+        Acute = True
+        sign = 1.0
+
         rows, cols = image_name.shape[:2]
+        
+        a_rad = a_found * (np.pi / 180)
+        rot_angle_rad = np.pi/2 + a_rad
 
-        a_rad = a_deg * (np.pi / 180)
-        if ((yf - yi) / (xf - xi)) < 0:
-                r = int(rows*np.cos(a_rad) + cols*np.sin(a_rad))
-                c = int(cols*np.cos(a_rad) + rows*np.sin(a_rad))
-                print ('Positive')
+        if yi < yf:
+                Acute = False
+
+        if a_found < 0:
+                if not Acute:
+                        sign = -1.0
+                        rot_angle_rad = np.pi/2 - a_rad
         else:
-                r = int(cols*np.cos(a_rad - np.pi/2) + rows*np.sin(a_rad - np.pi/2))
-                c = int(rows*np.cos(a_rad - np.pi/2) + cols*np.sin(a_rad - np.pi/2))
-                print ('Negative')
+                if Acute:
+                        sign = -1.0
+                        rot_angle_rad = np.pi/2 - a_rad
+        
+        if Acute:
+                r = int(rows*np.cos(rot_angle_rad) + cols*np.sin(rot_angle_rad))
+                c = int(cols*np.cos(rot_angle_rad) + rows*np.sin(rot_angle_rad))
+        else:
+                r = int(cols*np.cos(rot_angle_rad - np.pi/2) + rows*np.sin(rot_angle_rad - np.pi/2))
+                c = int(rows*np.cos(rot_angle_rad - np.pi/2) + cols*np.sin(rot_angle_rad - np.pi/2))
+        
+        rot_angle_deg = rot_angle_rad * (180 / np.pi)
 
-        M = cv2.getRotationMatrix2D((cols/2, rows/2), a_deg, 1)
+        M = cv2.getRotationMatrix2D((cols//2, rows//2), sign * rot_angle_deg, 1)
         M[0,2] += (c - cols) / 2
         M[1,2] += (r - rows) / 2
+        
         return cv2.warpAffine(image_name, M, (c, r))
 
 print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
 
 # Rotate image and show rotated version
-img_withbat_rotated = rotate(img_withbat, rotation_angle)
+img_withbat_rotated = rotate(img_withbat, found_angle)
 cv2.namedWindow(window2Name)
 cv2.setMouseCallback(window2Name, click_event2)
 cv2.imshow(window2Name, img_withbat_rotated)
@@ -126,7 +140,7 @@ roi_withbat = clone_img_withbat_rotated[(roi_y - n):(roi_y + n + 1), (roi_x - n)
 img_wobat = cv2.imread(readpath_wobat)
 
 #Rotate image, convert to grayscale, and clone
-img_wobat_rotated = rotate(img_wobat, rotation_angle)
+img_wobat_rotated = rotate(img_wobat, found_angle)
 clone_img_wobat_rotated = cv2.cvtColor(img_wobat_rotated, cv2.COLOR_BGR2GRAY)
 img_wobat_rotated_gray = cv2.cvtColor(img_wobat_rotated, cv2.COLOR_BGR2GRAY)
 
