@@ -60,34 +60,39 @@ cv2.waitKey(0) & 0xFF
 
 # Define angle finding function
 def find_angle(x1, y1, x2, y2):
-        det = (y2 - y1) / (x2 - x1)
+        det = (y2 - y1) / (x2 - x1) # Fix?
         angle_rad = np.arctan(det)
         angle_deg = angle_rad * (180 / np.pi)
         return angle_deg
 
 # Find rotation angle from clicked points
 found_angle = find_angle(xi, yi, xf, yf)
-if found_angle < 0:
-        rotation_angle = 90 + found_angle
-else:
-        rotation_angle = 90 - found_angle
+rotation_angle = 90 + found_angle
 print (found_angle)
 print (rotation_angle)
-# rotation_angle = 90
+# rotation_angle = 100
 
 # Define rotating image function
 def rotate(image_name, a_deg):
+        global xi, yi, xf, yf
+        
         rows, cols = image_name.shape[:2]
 
         a_rad = a_deg * (np.pi / 180)
-        r = int(rows*np.cos(a_rad) + cols*np.sin(a_rad))
-        c = int(cols*np.cos(a_rad) + rows*np.sin(a_rad))
+        if ((yf - yi) / (xf - xi)) < 0:
+                r = int(rows*np.cos(a_rad) + cols*np.sin(a_rad))
+                c = int(cols*np.cos(a_rad) + rows*np.sin(a_rad))
+                print ('Positive')
+        else:
+                r = int(cols*np.cos(a_rad - np.pi/2) + rows*np.sin(a_rad - np.pi/2))
+                c = int(rows*np.cos(a_rad - np.pi/2) + cols*np.sin(a_rad - np.pi/2))
+                print ('Negative')
 
         M = cv2.getRotationMatrix2D((cols/2, rows/2), a_deg, 1)
         M[0,2] += (c - cols) / 2
         M[1,2] += (r - rows) / 2
         return cv2.warpAffine(image_name, M, (c, r))
-        
+
 print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
 
 # Rotate image and show rotated version
