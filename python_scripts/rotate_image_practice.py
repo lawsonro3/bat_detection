@@ -23,7 +23,7 @@ else:
         r = int(cols*np.cos(a_rad - np.pi/2) + rows*np.sin(a_rad - np.pi/2))
         c = int(rows*np.cos(a_rad - np.pi/2) + cols*np.sin(a_rad - np.pi/2))
         print ('Negative')
-M = cv2.getRotationMatrix2D((cols//2, rows//2), a_deg, 1.0)
+M = cv2.getRotationMatrix2D((cols//2, rows//2), -a_deg, 1.0)
 M[0,2] += (c - cols) / 2
 M[1,2] += (r - rows) / 2
 
