@@ -62,7 +62,7 @@ def find_angle(xi, yi, xf, yf):
 
 # Define image rotating function
 def rotate(image_name, a_found):
-        global xi, yi, xf, yf
+        global yi, yf
         
         Acute = True
         sign = 1.0
