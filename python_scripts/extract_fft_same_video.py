@@ -18,101 +18,116 @@ frameextension = '.jpg'
 readpath1 = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frame1 + frameextension # Customize this based on directories in computer
 readpath2 = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frame2 + frameextension
 
-# Set window names
-frameTitle1 = 'Video ' + file + ', Frame ' + frame1
-window1Name = frameTitle1
-frameTitle2 = 'Video ' + file + ', Frame ' + frame2
-window2Name = frameTitle2
-
 n = 20
 s = n * 2 + 1 # Length of square sides
 
+# Set window names
+frameTitle1 = 'Video ' + file + ', Frame ' + frame1
+window1Name = frameTitle1
+window2Name = frameTitle1 + ', Rotated'
+frameTitle2 = 'Video ' + file + ', Frame ' + frame2
+window3Name = frameTitle2
+window4Name = frameTitle2 + ', Rotated'
+
+# Set up variables for click event 1
+drawLine1 = False
+xi1, yi1 = 0, 0
+xf1, yf1 = 0, 0
+
+# Set up variables for click event 3
+drawLine2 = False
+xi2, yi2 = 0, 0
+xf2, yf2 = 0, 0
+
 ref_location1 = [] # Empty list to hold click locations on Frame 1
+ref_location2 = [] # Empty list to hold click locations on Frame 2
 
-# Read original frame 1 and create grayscale copy
-img1 = cv2.imread(readpath1)
-clone1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-
-# Click event 1
+# Click event 1 - to find rotation angle
 def click_event1(event, x, y, flags, param):
+        global xi1, yi1, xf1, yf1, drawLine1
+        if event == cv2.EVENT_LBUTTONDOWN:
+                drawLine1 = True
+                xi1, yi1 = x, y
+        if event == cv2.EVENT_LBUTTONUP:
+                if drawLine1:
+                        drawLine1 = False
+                        xf1, yf1 = x, y
+
+# Click event 2 - to find region of interest
+def click_event2(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         ref_location1.append((x, y))
 
-# Set up original frame 1 window and callback function
-cv2.namedWindow(window1Name)
-cv2.setMouseCallback(window1Name, click_event1)
+# Click event 3 - to find rotation angle
+def click_event3(event, x, y, flags, param):
+        global xi2, yi2, xf2, yf2, drawLine2
+        if event == cv2.EVENT_LBUTTONDOWN:
+                drawLine2 = True
+                xi2, yi2 = x, y
+        if event == cv2.EVENT_LBUTTONUP:
+                if drawLine2:
+                        drawLine2 = False
+                        xf2, yf2 = x, y
 
-print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
-
-# Show original frame 1
-cv2.imshow(window1Name, img1)
-cv2.waitKey(0) & 0xFF
-
-# Coordinates of last clicked region
-roi1_x = ref_location1[-1][0]
-roi1_y = ref_location1[-1][1]
-
-print ('Location of Interest, Frame %s: (%s, %s)' % (frame1, roi1_x, roi1_y))
-
-print('\nPress any keys to progress.\n')
-
-# Convert original frame 1 to grayscale to show later
-img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-
-# Draw square
-cv2.rectangle(img1, (roi1_x - n, roi1_y - n), (roi1_x + n, roi1_y + n), (0, 0, 0), 2)
-
-# Show grayscale frame 1 with square
-cv2.imshow(window1Name, img1)
-cv2.waitKey(0) & 0xFF
-
-# Crop frame 1 around last clicked location
-roi1 = clone1[(roi1_y - n):(roi1_y + n + 1), (roi1_x - n):(roi1_x + n + 1)]
-
-ref_location2 = [] # Empty list to hold click locations on Frame 2
-
-# Read original frame 2 and create grayscale copy
-img2 = cv2.imread(readpath2)
-clone2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-
-cv2.namedWindow(window2Name)
-
-# Click event 2
-def click_event2(event, x, y, flags, param):
+# Click event 3 - to find region of interest
+def click_event4(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         ref_location2.append((x, y))
 
-# Set up original image window and callback function
-cv2.setMouseCallback(window2Name, click_event2)
+# Define angle finding function
+def find_angle(x1, y1, x2, y2):
+        det = (y2 - y1) / (x2 - x1)
+        angle_rad = np.arctan(det)
+        angle_deg = angle_rad * (180 / np.pi)
+        return angle_deg
 
-print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
+# Define image rotating function
+def rotate(image_name, a_found, instance):
+        global yi1, yf1, yi2, yf2
 
-# Show original image
-cv2.imshow(window2Name, img2)
-cv2.waitKey(0) & 0xFF
+        if instance == 1:
+                yi = yi1
+                yf = yf1
+        elif instance == 2:
+                yi = yi2
+                yf = yf2
+        else:
+                print('Error: Unexpected image rotation instance.')
+        
+        Acute = True
+        sign = 1.0
 
-# Coordinates of last clicked region
-roi2_x = ref_location2[-1][0]
-roi2_y = ref_location2[-1][1]
+        rows, cols = image_name.shape[:2]
+        
+        a_rad = a_found * (np.pi / 180)
+        rot_angle_rad = np.pi/2 + a_rad
 
-print ('Location of Interest, Frame %s: (%s, %s)' % (frame2, roi2_x, roi2_y))
+        if yi < yf:
+                Acute = False
 
-print('\nPress any keys to progress.\n')
+        if a_found < 0:
+                if not Acute:
+                        sign = -1.0
+                        rot_angle_rad = np.pi/2 - a_rad
+        else:
+                if Acute:
+                        sign = -1.0
+                        rot_angle_rad = np.pi/2 - a_rad
+        
+        if Acute:
+                r = int(rows*np.cos(rot_angle_rad) + cols*np.sin(rot_angle_rad))
+                c = int(cols*np.cos(rot_angle_rad) + rows*np.sin(rot_angle_rad))
+        else:
+                r = int(cols*np.cos(rot_angle_rad - np.pi/2) + rows*np.sin(rot_angle_rad - np.pi/2))
+                c = int(rows*np.cos(rot_angle_rad - np.pi/2) + cols*np.sin(rot_angle_rad - np.pi/2))
+        
+        rot_angle_deg = rot_angle_rad * (180 / np.pi)
 
-# Convert original frame 2 to grayscale to show later
-img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-
-# Draw square around region of interest in frame 2
-cv2.rectangle(img2, (roi2_x - n, roi2_y - n), (roi2_x + n, roi2_y + n), (0, 0, 0), 2)
-
-# Show grayscale frame 2 with square
-cv2.imshow(window2Name, img2)
-cv2.waitKey(0) & 0xFF
-
-# Crop frame 2 around same location
-roi2 = clone2[(roi2_y - n):(roi2_y + n + 1), (roi2_x - n):(roi2_x + n + 1)]
-
-cv2.destroyAllWindows()
+        M = cv2.getRotationMatrix2D((cols//2, rows//2), sign * rot_angle_deg, 1)
+        M[0,2] += (c - cols) / 2
+        M[1,2] += (r - rows) / 2
+        
+        return cv2.warpAffine(image_name, M, (c, r))
 
 # Define FFT function
 def takedft(img_name):
@@ -120,6 +135,86 @@ def takedft(img_name):
         dft_shift = np.fft.fftshift(dft)
         magnitude_spectrum = 20 * np.log(cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
         return dft, dft_shift, magnitude_spectrum
+
+# Show original frame 1
+img1 = cv2.imread(readpath1)
+cv2.namedWindow(window1Name)
+cv2.setMouseCallback(window1Name, click_event1)
+cv2.imshow(window1Name, img1)
+cv2.waitKey(0) & 0xFF
+
+# Find rotation angle from clicked points
+found_angle1 = find_angle(xi1, yi1, xf1, yf1)
+
+# print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
+
+# Rotate frame 1 and show rotated version
+img1_rotated = rotate(img1, found_angle1, 1)
+cv2.namedWindow(window2Name)
+cv2.setMouseCallback(window2Name, click_event2)
+cv2.imshow(window2Name, img1_rotated)
+cv2.waitKey(0) & 0xFF
+
+# Coordinates of region of interest
+roi1_x = ref_location1[-1][0]
+roi1_y = ref_location1[-1][1]
+
+print ('\nLocation of Interest, Frame %s: (%s, %s)' % (frame1, roi1_x, roi1_y))
+
+# print('\nPress any keys to progress.\n')
+
+# Convert rotated frame 1 to grayscale and clone
+clone_img1_rotated_gray = cv2.cvtColor(img1_rotated, cv2.COLOR_BGR2GRAY)
+img1_rotated_gray = cv2.cvtColor(img1_rotated, cv2.COLOR_BGR2GRAY)
+
+# Show grayscale rotated frame 1 with square
+cv2.rectangle(img1_rotated_gray, (roi1_x - n, roi1_y - n), (roi1_x + n, roi1_y + n), (0, 0, 0), 2)
+cv2.imshow(window2Name, img1_rotated_gray)
+cv2.waitKey(0) & 0xFF
+
+# Crop frame 1 around last clicked location
+roi1 = clone_img1_rotated_gray[(roi1_y - n):(roi1_y + n + 1), (roi1_x - n):(roi1_x + n + 1)]
+
+# Read in original frame 2 
+img2 = cv2.imread(readpath2)
+cv2.namedWindow(window3Name)
+cv2.setMouseCallback(window3Name, click_event3)
+cv2.imshow(window3Name, img2)
+cv2.waitKey(0) & 0xFF
+
+# print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
+
+# Find rotation angle from clicked points
+found_angle2 = find_angle(xi2, yi2, xf2, yf2)
+
+# Rotate image and show rotated version
+img2_rotated = rotate(img2, found_angle2, 2)
+cv2.namedWindow(window4Name)
+cv2.setMouseCallback(window4Name, click_event4)
+cv2.imshow(window4Name, img2_rotated)
+cv2.waitKey(0) & 0xFF
+
+# Coordinates of last clicked region
+roi2_x = ref_location2[-1][0]
+roi2_y = ref_location2[-1][1]
+
+print ('\nLocation of Interest, Frame %s: (%s, %s)' % (frame2, roi2_x, roi2_y))
+
+# print('\nPress any keys to progress.\n')
+
+# Convert rotated frame 2 to grayscale and clone
+clone_img2_rotated_gray = cv2.cvtColor(img2_rotated, cv2.COLOR_BGR2GRAY)
+img2_rotated_gray = cv2.cvtColor(img2_rotated, cv2.COLOR_BGR2GRAY)
+
+# Show grayscale rotated frame 2 with square
+cv2.rectangle(img2_rotated_gray, (roi2_x - n, roi2_y - n), (roi2_x + n, roi2_y + n), (0, 0, 0), 2)
+cv2.imshow(window4Name, img2_rotated_gray)
+cv2.waitKey(0) & 0xFF
+
+# Crop frame 2 around last clicked location
+roi2 = clone_img2_rotated_gray[(roi2_y - n):(roi2_y + n + 1), (roi2_x - n):(roi2_x + n + 1)]
+
+cv2.destroyAllWindows()
 
 # Take FFT and extract magnitude spectrum of cropped images
 takedft_roi1 = takedft(roi1)
@@ -157,7 +252,7 @@ plt.suptitle(file + ', Same Bat Comparison', fontsize = titlefontsize)
 
 plt.subplot(figrows, figcolumns, 1)
 plt.cla()
-plt.imshow(img1, cmap='gray', norm=norm)
+plt.imshow(img1_rotated_gray, cmap='gray', norm=norm)
 plt.title(frameTitle1, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -189,7 +284,7 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 5)
 plt.cla()
-plt.imshow(img2, cmap='gray', norm=norm)
+plt.imshow(img2_rotated_gray, cmap='gray', norm=norm)
 plt.title(frameTitle2, fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -247,4 +342,4 @@ plt.yticks([])
 
 plt.show()
 
-print ("Done")
+print ("\nDone")

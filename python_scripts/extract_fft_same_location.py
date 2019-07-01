@@ -28,14 +28,14 @@ window2Name = frameTitle_withbat + ', Rotated'
 frameTitle_wobat = 'Video ' + file + ', Frame ' + frameno_wobat
 window3Name = frameTitle_wobat + ', Rotated'
 
-ref_location = [] # Empty list to hold click locations
-
 # Set up variables for click event 1
 drawLine = False
 xi, yi = 0, 0
 xf, yf = 0, 0
 
-# Click event 1
+ref_location = [] # Empty list to hold click event 2 locations
+
+# Click event 1 - to find rotation angle
 def click_event1(event, x, y, flags, param):
         global xi, yi, xf, yf, drawLine
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -46,29 +46,19 @@ def click_event1(event, x, y, flags, param):
                         drawLine = False
                         xf, yf = x, y
 
-# Click event 2
+# Click event 2 - to find region of interest
 def click_event2(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         ref_location.append((x, y))
 
-# Show original image
-img_withbat = cv2.imread(readpath_withbat)
-cv2.namedWindow(window1Name)
-cv2.setMouseCallback(window1Name, click_event1)
-cv2.imshow(window1Name, img_withbat)
-cv2.waitKey(0) & 0xFF
-
 # Define angle finding function
 def find_angle(x1, y1, x2, y2):
-        det = (y2 - y1) / (x2 - x1) # Fix?
+        det = (y2 - y1) / (x2 - x1)
         angle_rad = np.arctan(det)
         angle_deg = angle_rad * (180 / np.pi)
         return angle_deg
 
-# Find rotation angle from clicked points
-found_angle = find_angle(xi, yi, xf, yf)
-
-# Define rotate image function
+# Define image rotating function
 def rotate(image_name, a_found):
         global xi, yi, xf, yf
         
@@ -107,7 +97,24 @@ def rotate(image_name, a_found):
         
         return cv2.warpAffine(image_name, M, (c, r))
 
-print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
+# Define FFT function
+def takedft(img_name):
+        dft = cv2.dft(np.float32(img_name), flags = cv2.DFT_COMPLEX_OUTPUT)
+        dft_shift = np.fft.fftshift(dft)
+        magnitude_spectrum = 20 * np.log(cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
+        return dft, dft_shift, magnitude_spectrum
+
+# Show original image
+img_withbat = cv2.imread(readpath_withbat)
+cv2.namedWindow(window1Name)
+cv2.setMouseCallback(window1Name, click_event1)
+cv2.imshow(window1Name, img_withbat)
+cv2.waitKey(0) & 0xFF
+
+# Find rotation angle from clicked points
+found_angle = find_angle(xi, yi, xf, yf)
+
+# print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
 
 # Rotate image and show rotated version
 img_withbat_rotated = rotate(img_withbat, found_angle)
@@ -116,16 +123,16 @@ cv2.setMouseCallback(window2Name, click_event2)
 cv2.imshow(window2Name, img_withbat_rotated)
 cv2.waitKey(0) & 0xFF
 
-# Coordinates of last clicked region
+# Coordinates of region of interest
 roi_x = ref_location[-1][0]
 roi_y = ref_location[-1][1]
 
-print ('Location of Interest: (' + str(roi_x) + ', ' + str(roi_y) + ')')
+print ('\nLocation of Interest: (%s, %s)' % (roi_x, roi_y))
 
-print('\nPress any keys to progress.\n')
+# print('\nPress any keys to progress.\n')
 
 # Convert rotated image to grayscale and clone
-clone_img_withbat_rotated = cv2.cvtColor(img_withbat_rotated, cv2.COLOR_BGR2GRAY)
+clone_img_withbat_rotated_gray = cv2.cvtColor(img_withbat_rotated, cv2.COLOR_BGR2GRAY)
 img_withbat_rotated_gray = cv2.cvtColor(img_withbat_rotated, cv2.COLOR_BGR2GRAY)
 
 # Show grayscale rotated image with square
@@ -134,12 +141,12 @@ cv2.imshow(window2Name, img_withbat_rotated_gray)
 cv2.waitKey(0) & 0xFF
 
 # Crop image around last clicked location
-roi_withbat = clone_img_withbat_rotated[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
+roi_withbat = clone_img_withbat_rotated_gray[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
 
 # Read in original image w/o bat
 img_wobat = cv2.imread(readpath_wobat)
 
-#Rotate image, convert to grayscale, and clone
+# Rotate image, convert to grayscale, and clone
 img_wobat_rotated = rotate(img_wobat, found_angle)
 clone_img_wobat_rotated = cv2.cvtColor(img_wobat_rotated, cv2.COLOR_BGR2GRAY)
 img_wobat_rotated_gray = cv2.cvtColor(img_wobat_rotated, cv2.COLOR_BGR2GRAY)
@@ -153,13 +160,6 @@ cv2.waitKey(0) & 0xFF
 roi_wobat = clone_img_wobat_rotated[(roi_y - n):(roi_y + n + 1), (roi_x - n):(roi_x + n + 1)]
 
 cv2.destroyAllWindows()
-
-# Define FFT function
-def takedft(img_name):
-        dft = cv2.dft(np.float32(img_name), flags = cv2.DFT_COMPLEX_OUTPUT)
-        dft_shift = np.fft.fftshift(dft)
-        magnitude_spectrum = 20 * np.log(cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
-        return dft, dft_shift, magnitude_spectrum
 
 # Take FFT and extract magnitude spectrum of cropped images
 takedft_roi_withbat = takedft(roi_withbat)
@@ -287,4 +287,4 @@ plt.yticks([])
 
 plt.show()
 
-print ("Done")
+print ("\nDone")
