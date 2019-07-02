@@ -95,7 +95,7 @@ def rotate(image_name, a_found, instance):
                 yi = yi2
                 yf = yf2
         else:
-                print('Error: Unexpected image rotation instance.')
+                print('\nError: Unexpected image rotation instance.\n')
         
         Acute = True
         sign = 1.0
@@ -162,7 +162,7 @@ cv2.waitKey(0) & 0xFF
 roi1_x = ref_location1[-1][0]
 roi1_y = ref_location1[-1][1]
 
-print ('\nLocation of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame1, roi1_x, roi1_y))
+# print ('\nLocation of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame1, roi1_x, roi1_y))
 
 # print('\nPress any keys to progress.\n')
 
@@ -201,7 +201,7 @@ cv2.waitKey(0) & 0xFF
 roi2_x = ref_location2[-1][0]
 roi2_y = ref_location2[-1][1]
 
-print ('\nLocation of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame2, roi2_x, roi2_y))
+# print ('\nLocation of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame2, roi2_x, roi2_y))
 
 # print('\nPress any keys to progress.\n')
 
@@ -357,4 +357,4 @@ plt.yticks([])
 
 plt.show()
 
-print ("\nDone")
+print ("Done")

@@ -129,7 +129,7 @@ cv2.waitKey(0) & 0xFF
 roi_x = ref_location[-1][0]
 roi_y = ref_location[-1][1]
 
-print ('\nLocation of Interest: (%s, %s)' % (roi_x, roi_y))
+# print ('\nLocation of Interest: (%s, %s)' % (roi_x, roi_y))
 
 # print('\nPress any keys to progress.\n')
 
@@ -300,4 +300,4 @@ plt.yticks([])
 
 plt.show()
 
-print ("\nDone")
+print ("Done")
