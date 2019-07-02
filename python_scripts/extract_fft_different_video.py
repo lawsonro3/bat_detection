@@ -77,13 +77,14 @@ def click_event4(event, x, y, flags, param):
 
 # Define angle finding function
 def find_angle(xi, yi, xf, yf):
-        det = (yf - yi) / (xf - xi)
-        angle_rad = np.arctan(det)
-        angle_deg = angle_rad * (180 / np.pi)
         if xi == xf:
                 angle_deg = 90.0
+        else:
+                det = (yf - yi) / (xf - xi)
+                angle_rad = np.arctan(det)
+                angle_deg = angle_rad * (180 / np.pi)
         return angle_deg
-
+        
 # Define image rotating function
 def rotate(image_name, a_found, instance):
         global yi1, yf1, yi2, yf2
