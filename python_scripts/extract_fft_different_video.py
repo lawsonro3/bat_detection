@@ -211,7 +211,7 @@ img2_rotated_gray = cv2.cvtColor(img2_rotated, cv2.COLOR_BGR2GRAY)
 
 # Show grayscale rotated frame 2 with square
 cv2.rectangle(img2_rotated_gray, (roi2_x - n, roi2_y - n), (roi2_x + n, roi2_y + n), (0, 0, 0), 2)
-cv2.imshow(window2Name, img2_rotated_gray)
+cv2.imshow(window4Name, img2_rotated_gray)
 cv2.waitKey(0) & 0xFF
 
 # Crop frame 2 around same location
@@ -228,12 +228,23 @@ mag_spect_roi2 = takedft_roi2[2]
 # Correlate FFTs
 correlation = signal.correlate2d(mag_spect_roi1, mag_spect_roi2, fillvalue=0)
 
+#Correlate FFTs to themselves and extract value results
+auto1 = signal.correlate2d(mag_spect_roi1, mag_spect_roi1, fillvalue=0)
+auto2 = signal.correlate2d(mag_spect_roi2, mag_spect_roi2, fillvalue=0)
+
+auto1_value = auto1[2*n][2*n]
+auto2_value = auto2[2*n][2*n]
+
 # Calculate SSIM of FFTs
 avg_ssim, ssim_image = ssim(mag_spect_roi1, mag_spect_roi2, full=True)
 
 # Image similarity results (at center, where FFTs are aligned)
 ssim_value = ssim_image[n][n]
 correlation_value = correlation[2*n][2*n]
+
+# Normalized correlation value (to average of auto-correlation values)
+correlation_value_normalized = correlation_value / ((auto1_value + auto2_value) / 2.0)
+correlation_value_normalized_log = np.log10(correlation_value_normalized)
 
 ## Show results
 
@@ -243,7 +254,7 @@ figrows = 3
 figcolumns = 4
 
 # Set up grayscale normalization condition
-Normalization = False
+Normalization = True
 
 if Normalization:
         norm = mpl.colors.Normalize(vmin = 0, vmax = 255)
@@ -326,7 +337,8 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 10)
 plt.cla()
-plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation_value, 4))
+plt.text(0.05, 0.6, 'Correlation = %s' % round(correlation_value, 4))
+plt.text(0.05, 0.3, 'Normalized = %s' % round(correlation_value_normalized, 4))
 plt.xticks([])
 plt.yticks([])
 

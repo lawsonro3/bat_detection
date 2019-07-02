@@ -172,12 +172,22 @@ mag_spect_roi_wobat = takedft_roi_wobat[2]
 # Correlate FFTs
 correlation = signal.correlate2d(mag_spect_roi_withbat, mag_spect_roi_wobat, fillvalue=0)
 
+#Correlate FFTs to themselves and extract value results
+auto1 = signal.correlate2d(mag_spect_roi_withbat, mag_spect_roi_withbat, fillvalue=0)
+auto2 = signal.correlate2d(mag_spect_roi_wobat, mag_spect_roi_wobat, fillvalue=0)
+
+auto1_value = auto1[2*n][2*n]
+auto2_value = auto2[2*n][2*n]
+
 # Calculate SSIM of FFTs
 avg_ssim, ssim_image = ssim(mag_spect_roi_withbat, mag_spect_roi_wobat, full=True)
 
 # Image similarity results (at center, where FFTs are aligned)
 ssim_value = ssim_image[n][n]
 correlation_value = correlation[2*n][2*n]
+
+# Normalized correlation value (to average of auto-correlation values)
+correlation_value_normalized = correlation_value / ((auto1_value + auto2_value) / 2.0)
 
 ## Show results
 
@@ -270,7 +280,8 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 10)
 plt.cla()
-plt.text(0.05, 0.5, 'Correlation = %s' % round(correlation_value, 4))
+plt.text(0.05, 0.6, 'Correlation = %s' % round(correlation_value, 4))
+plt.text(0.05, 0.3, 'Normalized = %s' % round(correlation_value_normalized, 4))
 plt.xticks([])
 plt.yticks([])
 
