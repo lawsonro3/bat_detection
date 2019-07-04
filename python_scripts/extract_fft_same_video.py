@@ -261,7 +261,7 @@ else:
         norm = None
 
 plt.figure(1, figsize=(figcolumns*3, figrows*3))
-plt.suptitle(file + ', Same Bat Comparison', fontsize = titlefontsize)
+plt.suptitle(file + ', Same Video Comparison', fontsize = titlefontsize)
 
 plt.subplot(figrows, figcolumns, 1)
 plt.cla()

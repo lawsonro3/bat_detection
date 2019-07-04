@@ -1,4 +1,5 @@
 # Import useful libraries
+import csv
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,23 +11,121 @@ import os # Not currently using - figure out how to effectively use os.path.join
 
 plt.close() # Close any previous matplotlib.pyplot windows
 
-# Set up read paths
-file1 = input('Video 1 Name: ') # Try 2016-07-30_014634
-frame1 = input('Video 1 Frame Number: ')
-file2 = input('Video 2 Name: ') # Try something else
-frame2 = input('Video 2 Frame Number: ')
-frameextension = '.jpg'
-readpath1 = '/Users/icunitz/Desktop/bat_detection/frames/' + file1 + '/frame' + frame1 + frameextension # Customize this based on directories in computer
-readpath2 = '/Users/icunitz/Desktop/bat_detection/frames/' + file2 + '/frame' + frame2 + frameextension
-
 n = 20
 s = n * 2 + 1 # Length of square sides
 
+readlocation = '/Users/icunitz/Desktop/bat_detection/'
+
+# Define find element function for column
+def findelements(inputlist, Duplicate=False):
+        outputlist = []
+        for element in inputlist:
+                if element.startswith('#'):
+                        continue
+                elif element == '':
+                        continue
+                else:
+                        outputlist.append(element)
+        if not Duplicate:
+                if len(outputlist) == 1:
+                        return outputlist[0]
+                else:
+                        print('Error: Elements in column =/= 1')
+        else:
+                if len(outputlist) == 2:
+                        return outputlist
+                elif len(outputlist) == 1:
+                        return outputlist[:1]
+                else:
+                        print('Error: Elements in column =/= 2 or 1')
+
+# Define find file name column function
+def findfilelist(objecttype, distance):
+        filelist = ''
+        if objecttype == 'airplanes':
+                if distance == 'close':
+                        filelist = row[4]
+                else:
+                        filelist = row[5]
+        elif objecttype == 'bats':
+                if distance == 'close':
+                        filelist = row[6]
+                else:
+                        filelist = row[7]
+        elif objecttype == 'birds':
+                if distance == 'close':
+                        filelist = row[8]
+                else:
+                        filelist.append(row[9])
+        elif objecttype == 'insects':
+                if distance == 'close':
+                        filelist = row[10]
+        return filelist
+
+# Set up empty lists to hold data from input file
+objecttype1_ = []
+objecttype2_ = []
+distance1_ = []
+distance2_ = []
+filename1_ = []
+filename2_ = []
+frame1_ = []
+frame2_ = []
+
+# Read object type, distance, and frame columns
+with open(readlocation + 'input.csv', newline='') as csvfile:
+        inputreader = csv.reader(csvfile)
+        for row in inputreader:
+                objecttype1_.append(row[0])
+                distance1_.append(row[1])
+                objecttype2_.append(row[2])
+                distance2_.append(row[3])
+
+                frame1_.append(row[11])
+                frame2_.append(row[12])
+
+# Find object type, distance, and frame from columns
+objecttype1 = findelements(objecttype1_)
+objecttype2 = findelements(objecttype2_)
+distance1 = findelements(distance1_)
+distance2 = findelements(distance2_)
+frame1 = findelements(frame1_)
+frame2 = findelements(frame2_)
+
+# Read file name columns
+with open(readlocation + 'input.csv', newline='') as csvfile:
+        inputreader = csv.reader(csvfile)
+        for row in inputreader:
+                filename1_.append(findfilelist(objecttype1, distance1))
+                filename2_.append(findfilelist(objecttype2, distance2))
+
+# Find file names from columns
+if filename1_ == filename2_:
+        filenames_ = findelements(filename1_, Duplicate=True)
+        if len(filenames_) == 2:
+                filename1 = filenames_[0]
+                filename2 = filenames_[1]
+        else:
+                filename1 = filenames_[0]
+                filename2 = filenames_[0]
+else:
+        filename1 = findelements(filename1_)
+        filename2 = findelements(filename2_)
+
+# Print results
+print(objecttype1, distance1, filename1, frame1, objecttype2, distance2, filename2,  frame2)
+
+extension = '.jpg'
+
+# Set up frame read paths
+readpath1 = readlocation + 'frames/clear_background/%s/%s/%s/frame%s%s' % (objecttype1, distance1, filename1, frame1, extension)
+readpath2 = readlocation + 'frames/clear_background/%s/%s/%s/frame%s%s' % (objecttype2, distance2, filename2, frame2, extension)
+
 # Set window names
-frameTitle1 = 'Video ' + file1 + ', Frame ' + frame1
+frameTitle1 = 'Video ' + filename1 + ', Frame ' + frame1
 window1Name = frameTitle1
 window2Name = frameTitle1 + ', Rotated'
-frameTitle2 = 'Video ' + file2 + ', Frame ' + frame2
+frameTitle2 = 'Video ' + filename2 + ', Frame ' + frame2
 window3Name = frameTitle2
 window4Name = frameTitle2 + ', Rotated'
 
@@ -84,7 +183,7 @@ def find_angle(xi, yi, xf, yf):
                 angle_rad = np.arctan(det)
                 angle_deg = angle_rad * (180 / np.pi)
         return angle_deg
-        
+
 # Define image rotating function
 def rotate(image_name, a_found, instance):
         global yi1, yf1, yi2, yf2
@@ -163,8 +262,6 @@ cv2.waitKey(0) & 0xFF
 roi1_x = ref_location1[-1][0]
 roi1_y = ref_location1[-1][1]
 
-# print ('\nLocation of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame1, roi1_x, roi1_y))
-
 # print('\nPress any keys to progress.\n')
 
 # Convert rotated frame 1 to grayscale and clone
@@ -201,8 +298,6 @@ cv2.waitKey(0) & 0xFF
 # Coordinates of last clicked region
 roi2_x = ref_location2[-1][0]
 roi2_y = ref_location2[-1][1]
-
-# print ('\nLocation of Interest, Video %s, Frame %s: (%s, %s)' % (file1, frame2, roi2_x, roi2_y))
 
 # print('\nPress any keys to progress.\n')
 
@@ -263,7 +358,7 @@ else:
         norm = None
 
 plt.figure(1, figsize=(figcolumns*3, figrows*3))
-plt.suptitle('%s vs. %s Comparison' % (file1, file2), fontsize = titlefontsize)
+plt.suptitle('%s vs. %s Comparison' % (filename1, filename2), fontsize = titlefontsize)
 
 plt.subplot(figrows, figcolumns, 1)
 plt.cla()

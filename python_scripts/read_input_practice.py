@@ -2,6 +2,7 @@ import csv
 
 readlocation = '/Users/icunitz/Desktop/bat_detection/'
 
+# Set up empty lists to hold data from input file
 objecttype1_ = []
 objecttype2_ = []
 distance1_ = []
@@ -11,6 +12,7 @@ filename2_ = []
 frame1_ = []
 frame2_ = []
 
+# Define find element function for column
 def findelements(inputlist, Duplicate=False):
     outputlist = []
     for element in inputlist:
@@ -31,6 +33,7 @@ def findelements(inputlist, Duplicate=False):
         else:
             print('Error: Elements in column =/= 2')
 
+# Define find file name column function
 def findfilelist(objecttype, distance):
     filelist = ''
     if objecttype == 'airplanes':
@@ -53,9 +56,7 @@ def findfilelist(objecttype, distance):
             filelist = row[10]
     return filelist
 
-filename1_ = []
-filename2_ = []
-
+# Read object type, distance, and frame columns
 with open(readlocation + 'input.csv', newline='') as csvfile:
     inputreader = csv.reader(csvfile)
     for row in inputreader:
@@ -67,20 +68,22 @@ with open(readlocation + 'input.csv', newline='') as csvfile:
         frame1_.append(row[11])
         frame2_.append(row[12])
 
+# Find object type, distance, and frame from columns
 objecttype1 = findelements(objecttype1_)
 objecttype2 = findelements(objecttype2_)
 distance1 = findelements(distance1_)
 distance2 = findelements(distance2_)
+frame1 = findelements(frame1_)
+frame2 = findelements(frame2_)
 
+# Read file name columns
 with open(readlocation + 'input.csv', newline='') as csvfile:
     inputreader = csv.reader(csvfile)
     for row in inputreader:
         filename1_.append(findfilelist(objecttype1, distance1))
         filename2_.append(findfilelist(objecttype2, distance2))
 
-frame1 = findelements(frame1_)
-frame2 = findelements(frame2_)
-
+# Find file names from columns
 if filename1_ == filename2_:
     filenames_ = findelements(filename1_, Duplicate=True)
     filename1 = filenames_[0]
@@ -89,4 +92,5 @@ else:
     filename1 = findelements(filename1_)
     filename2 = findelements(filename2_)
 
+# Print results
 print(objecttype1, distance1, filename1, frame1, objecttype2, distance2, filename2,  frame2)

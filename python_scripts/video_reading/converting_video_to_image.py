@@ -4,15 +4,17 @@ import os
 print(cv2.__version__)
 
 # Set up read and write paths
-filename = '2016-10-02_234015'
+objecttype = 'bats'
+distance = 'close'
+filename = 'bat_112309'
 extension = '.avi'
-readpath = '/Users/icunitz/Desktop/bat_detection/bat_vids/' + filename + extension
+readpath = '/Users/icunitz/Desktop/clear_background/%s/%s/%s%s' % (objecttype, distance, filename, extension)
 vidcap = cv2.VideoCapture(readpath)
-writepath = '/Users/icunitz/Desktop/bat_detection/frames/' + filename
+writepath = '/Users/icunitz/Desktop/bat_detection/frames/clear_background/%s/%s/%s' % (objecttype, distance, filename)
 
 # Make new folder for the video's frames if one doesn't exist already
 if not os.path.exists(writepath):
-    os.mkdir(writepath)
+    os.makedirs(writepath)
 
 success,image = vidcap.read()
 count = 0
