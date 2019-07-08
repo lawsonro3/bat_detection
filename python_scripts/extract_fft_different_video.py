@@ -1,5 +1,4 @@
 # Import useful libraries
-import csv
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,6 +6,7 @@ from scipy import signal
 from skimage.measure import compare_ssim as ssim
 import matplotlib as mpl
 from mpl_toolkits import mplot3d
+import csv
 import os
 
 plt.close() # Close any previous matplotlib.pyplot windows
@@ -14,7 +14,14 @@ plt.close() # Close any previous matplotlib.pyplot windows
 n = 20
 s = n * 2 + 1 # Length of square sides
 
-readlocation = '/Users/icunitz/Desktop/bat_detection/frames/clear_background'
+# Set up folder structure and read locations
+cwd = os.getcwd()
+scriptfolder = 'python_scripts'
+framefolder1 = 'frames'
+framefolder2 = 'clear_background'
+homefolder = cwd[:-len(scriptfolder)]
+readlocation = os.path.join(homefolder, framefolder1, framefolder2)
+readlocation_input = homefolder
 inputfile = 'input.csv'
 
 # Define find element function for column
@@ -31,14 +38,14 @@ def findelements(inputlist, Duplicate=False):
                 if len(outputlist) == 1:
                         return outputlist[0]
                 else:
-                        print('Error: Elements in column =/= 1')
+                        print('Error: Elements in input column =/= 1')
         else:
                 if len(outputlist) == 2:
                         return outputlist
                 elif len(outputlist) == 1:
                         return outputlist[:1]
                 else:
-                        print('Error: Elements in column =/= 2 or 1')
+                        print('Error: Elements in input column =/= 2 or 1')
 
 # Define find file name column function
 def findfilelist(objecttype, distance):
@@ -74,7 +81,7 @@ frame1_ = []
 frame2_ = []
 
 # Read object type, distance, and frame columns
-with open(os.path.join(readlocation, inputfile), newline='') as csvfile:
+with open(os.path.join(readlocation_input, inputfile), newline='') as csvfile:
         inputreader = csv.reader(csvfile)
         for row in inputreader:
                 objecttype1_.append(row[0])
@@ -94,7 +101,7 @@ frame1 = findelements(frame1_)
 frame2 = findelements(frame2_)
 
 # Read file name columns
-with open(os.path.join(readlocation, inputfile), newline='') as csvfile:
+with open(os.path.join(readlocation_input, inputfile), newline='') as csvfile:
         inputreader = csv.reader(csvfile)
         for row in inputreader:
                 filename1_.append(findfilelist(objecttype1, distance1))
