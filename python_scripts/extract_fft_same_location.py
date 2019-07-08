@@ -15,8 +15,8 @@ file = input('Video Name: ') # Try 2016-07-30_014634
 frameno_withbat = input('Frame Number With Bat: ') # Try 65
 frameno_wobat = input('Frame Number Without Bat: ') # Try 60
 frameextension = '.jpg'
-readpath_withbat = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frameno_withbat + frameextension # Customize this based on directories in computer
-readpath_wobat = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frameno_wobat + frameextension
+readpath_withbat = '/Users/icunitz/Desktop/bat_detection/frames/clear_background/bats/close/' + file + '/frame' + frameno_withbat + frameextension # Customize this based on directories in computer
+readpath_wobat = '/Users/icunitz/Desktop/bat_detection/frames/clear_background/bats/close/' + file + '/frame' + frameno_wobat + frameextension
 
 n = 20
 s = n * 2 + 1 # Length of square sides
