@@ -33,13 +33,3 @@ for subdir, dirs, files in os.walk(parentpath_read):
                 success, image = vidcap.read()
                 print ('Read a new frame: ', success)
                 count += 1
-
-    #for distance in objecttype:
-    #   for filename in distance:
-
-    #       readpath = '/Users/icunitz/Desktop/clear_background/%s/%s/%s%s' % (objecttype, distance, filename, extension)
-    #       writepath = '/Users/icunitz/Desktop/bat_detection/frames/clear_background/%s/%s/%s' % (objecttype, distance, filename)
-
-    #       # Make new folder for the video's frames if one doesn't exist already
-    #       
-
