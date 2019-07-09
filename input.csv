@@ -1,8 +1,8 @@
 ## type 1,## distance 1,## type 2,## distance 2,## close airplanes,## far airplanes,## close bats,## far bats,## close birds,## far birds,## close insects,## frame 1,## frame 2
-#airplanes,close,#airplanes,close,#airplane_16083,#airplane_64949,bat_111603,#bat_111511,#bird_185554,#bird_166055,#insect_114802,50,45
-bats,#far,bats,#far,#airplane_28134,#airplane_73551,#bat_112309,#bat_112970,#bird_226646,#bird_250439,#insect_117735,,
+airplanes,close,#airplanes,close,#airplane_16083,#airplane_64949,#bat_111603,#bat_111511,#bird_185554,#bird_166055,#insect_114802,50,100
+#bats,#far,bats,#far,airplane_28134,#airplane_73551,#bat_112309,#bat_112970,#bird_226646,#bird_250439,#insect_117735,,
 #birds,,#birds,,#airplane_63834,#airplane_76300,#bat_115518,#bat_114939,#bird_296000,#bird_259525,#insect_121167,,
 #insects,,#insects,,#airplane_82912,#airplane_81922,#bat_118504,#bat_114972,#bird_418385,#bird_344369,#insect_122273,,
 ,,,,#airplane_93322,,#bat_118661,#bat_116562,#bird_544506,#bird_714613,#insect_122731,,
-,,,,,,#bat_119482,#bat_117366,,,,,
-,,,,,,2016-07-30_014634,#bat_119482,,,,,
+,,,,,,bat_119482,#bat_117366,,,,,
+,,,,,,#2016-07-30_014634,#bat_119482,,,,,
