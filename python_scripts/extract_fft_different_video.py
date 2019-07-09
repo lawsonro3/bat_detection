@@ -8,13 +8,16 @@ import matplotlib as mpl
 from mpl_toolkits import mplot3d
 import csv
 import os
+import datetime
+
+stamp = datetime.datetime.now().microsecond # Stamp for figure title
 
 plt.close() # Close any previous matplotlib.pyplot windows
 
 n = 20
 s = n * 2 + 1 # Length of square sides
 
-# Set up folder structure and read locations
+# Set up folder structure and read/write paths
 cwd = os.getcwd()
 scriptfolder = 'python_scripts'
 framefolder1 = 'frames'
@@ -23,6 +26,11 @@ homefolder = cwd[:-len(scriptfolder)]
 readlocation = os.path.join(homefolder, framefolder1, framefolder2)
 readlocation_input = homefolder
 inputfile = 'input.csv'
+outputfolder1 = 'output'
+outputfolder2 = 'figs'
+writelocation = os.path.join(homefolder, outputfolder1, outputfolder2)
+writelocation_output = os.path.join(homefolder, outputfolder1)
+outputfile = 'output.csv'
 
 # Define find element function for column
 def findelements(inputlist, Duplicate=False):
@@ -120,8 +128,8 @@ else:
         filename1 = findelements(filename1_)
         filename2 = findelements(filename2_)
 
-# Print results
-print(objecttype1, distance1, filename1, frame1, objecttype2, distance2, filename2,  frame2)
+## Print results
+# print(objecttype1, distance1, filename1, frame1, objecttype2, distance2, filename2,  frame2)
 
 extension = '.jpg'
 
@@ -238,13 +246,13 @@ def rotate(image_name, a_found, instance):
         M[0,2] += (c - cols) / 2
         M[1,2] += (r - rows) / 2
         
-        return cv2.warpAffine(image_name, M, (c, r))
+        return cv2.warpAffine(image_name, M, (c, r)), sign * rot_angle_deg
 
 # Define FFT function
 def takedft(img_name):
         dft = cv2.dft(np.float32(img_name), flags = cv2.DFT_COMPLEX_OUTPUT)
         dft_shift = np.fft.fftshift(dft)
-        magnitude_spectrum = 20 * np.log(cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
+        magnitude_spectrum = np.log(cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
         return dft, dft_shift, magnitude_spectrum
 
 # Show original frame 1
@@ -260,7 +268,8 @@ found_angle1 = find_angle(xi1, yi1, xf1, yf1)
 # print('\nClick in the middle of the bat and press any key to progress. The region of interest coordinates will be saved as your last click.\n')
 
 # Rotate frame 1 and show rotated version
-img1_rotated = rotate(img1, found_angle1, 1)
+img1_rotated = rotate(img1, found_angle1, 1)[0]
+img1_rotangle = rotate(img1, found_angle1, 1)[1]
 cv2.namedWindow(window2Name)
 cv2.setMouseCallback(window2Name, click_event2)
 cv2.imshow(window2Name, img1_rotated)
@@ -295,7 +304,8 @@ cv2.waitKey(0) & 0xFF
 found_angle2 = find_angle(xi2, yi2, xf2, yf2)
 
 # Rotate image and show rotated version
-img2_rotated = rotate(img2, found_angle2, 2)
+img2_rotated = rotate(img2, found_angle2, 2)[0]
+img2_rotangle = rotate(img2, found_angle2, 2)[1]
 cv2.namedWindow(window4Name)
 cv2.setMouseCallback(window4Name, click_event4)
 cv2.imshow(window4Name, img2_rotated)
@@ -350,6 +360,18 @@ correlation_value = correlation[2*n][2*n]
 correlation_value_normalized = correlation_value / ((auto1_value + auto2_value) / 2.0)
 correlation_value_normalized_log = np.log10(correlation_value_normalized)
 
+# Create output figure title
+figextension = '.jpg'
+figtitle = '%s_%s_%s_%s_%s%s' % (filename1, frame1, filename2, frame2, stamp, figextension)
+
+## Write results to csv output file
+with open(os.path.join(writelocation_output, outputfile), mode='a', newline='') as csvfile:
+        outputwriter = csv.writer(csvfile)
+        outputwriter.writerow([figtitle, '', objecttype1, distance1, filename1, frame1,
+                                objecttype2, distance2, filename2, frame2, '',
+                                correlation_value, correlation_value_normalized, ssim_value, '',
+                                img1_rotangle, roi1_x, roi1_y, img2_rotangle, roi2_x, roi2_y])
+
 ## Show results
 
 titlefontsize = 12
@@ -357,34 +379,42 @@ subtitlefontsize = 10
 figrows = 3
 figcolumns = 4
 
-# Set up grayscale normalization condition
-Normalization = True
+# Set up grayscale normalization conditions
+Normalization1 = True
+Normalization2 = True
 
-if Normalization:
-        norm = mpl.colors.Normalize(vmin = 0, vmax = 255)
+if Normalization1:
+        norm1 = mpl.colors.Normalize(vmin = 0, vmax = 255)
 else:
-        norm = None
+        norm1 = None
+
+if Normalization2:
+        plottop = 14.0
+        norm2 = mpl.colors.Normalize(vmin = 0, vmax = plottop)
+else:
+        plottop = None
+        norm2 = None
 
 plt.figure(1, figsize=(figcolumns*3, figrows*3))
-plt.suptitle('%s vs. %s Comparison' % (filename1, filename2), fontsize = titlefontsize)
+plt.suptitle('%s, Frame %s vs. %s, Frame %s\n%s' % (filename1, frame1, filename2, frame2, stamp), fontsize = titlefontsize)
 
 plt.subplot(figrows, figcolumns, 1)
 plt.cla()
-plt.imshow(img1_rotated_gray, cmap='gray', norm=norm)
-plt.title(frameTitle1, fontsize = subtitlefontsize)
+plt.imshow(img1_rotated_gray, cmap='gray', norm=norm1)
+plt.title('%s, Frame %s' % (filename1, frame1), fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 2)
 plt.cla()
-plt.imshow(roi1, cmap='gray', norm=norm)
+plt.imshow(roi1, cmap='gray', norm=norm1)
 plt.title('ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 3)
 plt.cla()
-plt.imshow(mag_spect_roi1, cmap='gray', norm=norm)
+plt.imshow(mag_spect_roi1, cmap='gray', norm=norm2)
 plt.title('FFT of ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -393,30 +423,30 @@ ax1 = plt.subplot(figrows, figcolumns, 4, projection='3d')
 plt.cla()
 X1, Y1 = np.meshgrid(range(s), range(s))
 Z1 = mag_spect_roi1
-mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray', norm=norm)
+mplot3d.Axes3D.plot_surface(ax1, X1, Y1, Z1, cmap='gray', norm=norm2)
 plt.title('FFT of ROI, 3D', fontsize = subtitlefontsize)
-mplot3d.Axes3D.set_zlim3d(ax1, bottom=0.0, top=200.0)
+mplot3d.Axes3D.set_zlim3d(ax1, bottom=0.0, top=plottop)
 mplot3d.Axes3D.set_zticks(ax1, [])
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 5)
 plt.cla()
-plt.imshow(img2_rotated_gray, cmap='gray', norm=norm)
-plt.title(frameTitle2, fontsize = subtitlefontsize)
+plt.imshow(img2_rotated_gray, cmap='gray', norm=norm1)
+plt.title('%s, Frame %s' % (filename2, frame2), fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 6)
 plt.cla()
-plt.imshow(roi2, cmap='gray', norm=norm)
+plt.imshow(roi2, cmap='gray', norm=norm1)
 plt.title('ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 7)
 plt.cla()
-plt.imshow(mag_spect_roi2, cmap='gray', norm=norm)
+plt.imshow(mag_spect_roi2, cmap='gray', norm=norm2)
 plt.title('FFT of ROI', fontsize = subtitlefontsize)
 plt.xticks([])
 plt.yticks([])
@@ -425,9 +455,9 @@ ax2 = plt.subplot(figrows, figcolumns, 8, projection='3d')
 plt.cla()
 X2, Y2 = np.meshgrid(range(s), range(s))
 Z2 = mag_spect_roi2
-mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray', norm=norm)
+mplot3d.Axes3D.plot_surface(ax2, X2, Y2, Z2, cmap='gray', norm=norm2)
 plt.title('FFT of ROI, 3D', fontsize = subtitlefontsize)
-mplot3d.Axes3D.set_zlim3d(ax2, bottom=0.0, top=200.0)
+mplot3d.Axes3D.set_zlim3d(ax2, bottom=0.0, top=plottop)
 mplot3d.Axes3D.set_zticks(ax2, [])
 plt.xticks([])
 plt.yticks([])
@@ -460,5 +490,9 @@ plt.xticks([])
 plt.yticks([])
 
 plt.show()
+
+plt.savefig(os.path.join(writelocation, figtitle))
+
+print (figtitle)
 
 print ("Done")
