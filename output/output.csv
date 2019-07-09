@@ -1,0 +1,4 @@
+File name,,Type 1,Distance 1,File name 1,Frame 1,Type 2,Distance 2,File name 2,Frame 2,,Correlation,Normalized correlation,SSIM,,Angle 1,ROI 1 x,ROI 1 y,Angle 2,ROI 2 x,ROI 2 y
+airplane_28134_50_bat_119482_100_713750.jpg,,airplanes,close,airplane_28134,50,bats,close,bat_119482,100,,50735.043,0.979618575,0.787836625,,11.57518882,201,345,137.3441325,440,270
+airplane_28134_50_bat_119482_100_670676.jpg,,airplanes,close,airplane_28134,50,bats,close,bat_119482,100,,64739.535,0.956328106,0.349737874,,-22.27026792,201,353,61.43416321,106,403airplane_28134_50_bat_119482_100_424225.jpg,,airplanes,close,airplane_28134,50,bats,close,bat_119482,100,,51180.047,0.9845054566707178,0.7620926022519949,,-6.483073692897239,404,66,-45.0,429,242
+airplane_28134_50_bat_119482_100_413964.jpg,,airplanes,close,airplane_28134,50,bats,close,bat_119482,100,,-inf,nan,nan,,-31.52684188726886,255,351,59.722975061750226,508,167
