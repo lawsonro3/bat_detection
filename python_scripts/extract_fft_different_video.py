@@ -17,6 +17,8 @@ plt.close() # Close any previous matplotlib.pyplot windows
 n = 20
 s = n * 2 + 1 # Length of square sides
 
+squarethickness = 3
+
 # Set up folder structure and read/write paths
 cwd = os.getcwd()
 scriptfolder = 'python_scripts'
@@ -286,7 +288,7 @@ clone_img1_rotated_gray = cv2.cvtColor(img1_rotated, cv2.COLOR_BGR2GRAY)
 img1_rotated_gray = cv2.cvtColor(img1_rotated, cv2.COLOR_BGR2GRAY)
 
 # Show grayscale rotated frame 1 with square
-cv2.rectangle(img1_rotated_gray, (roi1_x - n, roi1_y - n), (roi1_x + n, roi1_y + n), (0, 0, 0), 2)
+cv2.rectangle(img1_rotated_gray, (roi1_x - n, roi1_y - n), (roi1_x + n, roi1_y + n), (0, 0, 0), squarethickness)
 cv2.imshow(window2Name, img1_rotated_gray)
 cv2.waitKey(0) & 0xFF
 
@@ -324,7 +326,7 @@ clone_img2_rotated_gray = cv2.cvtColor(img2_rotated, cv2.COLOR_BGR2GRAY)
 img2_rotated_gray = cv2.cvtColor(img2_rotated, cv2.COLOR_BGR2GRAY)
 
 # Show grayscale rotated frame 2 with square
-cv2.rectangle(img2_rotated_gray, (roi2_x - n, roi2_y - n), (roi2_x + n, roi2_y + n), (0, 0, 0), 2)
+cv2.rectangle(img2_rotated_gray, (roi2_x - n, roi2_y - n), (roi2_x + n, roi2_y + n), (0, 0, 0), squarethickness)
 cv2.imshow(window4Name, img2_rotated_gray)
 cv2.waitKey(0) & 0xFF
 
@@ -342,6 +344,9 @@ mag_spect_roi2 = takedft_roi2[2]
 # Correlate FFTs
 correlation = signal.correlate2d(mag_spect_roi1, mag_spect_roi2, fillvalue=0)
 
+# Try template matching
+template_matched = cv2.matchTemplate(mag_spect_roi1, mag_spect_roi2, cv2.TM_CCORR_NORMED)
+
 #Correlate FFTs to themselves and extract value results
 auto1 = signal.correlate2d(mag_spect_roi1, mag_spect_roi1, fillvalue=0)
 auto2 = signal.correlate2d(mag_spect_roi2, mag_spect_roi2, fillvalue=0)
@@ -358,19 +363,6 @@ correlation_value = correlation[2*n][2*n]
 
 # Normalized correlation value (to average of auto-correlation values)
 correlation_value_normalized = correlation_value / ((auto1_value + auto2_value) / 2.0)
-correlation_value_normalized_log = np.log10(correlation_value_normalized)
-
-# Create output figure title
-figextension = '.jpg'
-figtitle = '%s_%s_%s_%s_%s%s' % (filename1, frame1, filename2, frame2, stamp, figextension)
-
-## Write results to csv output file
-with open(os.path.join(writelocation_output, outputfile), mode='a', newline='') as csvfile:
-        outputwriter = csv.writer(csvfile)
-        outputwriter.writerow([figtitle, '', objecttype1, distance1, filename1, frame1,
-                                objecttype2, distance2, filename2, frame2, '',
-                                correlation_value, correlation_value_normalized, ssim_value, '',
-                                img1_rotangle, roi1_x, roi1_y, img2_rotangle, roi2_x, roi2_y])
 
 ## Show results
 
@@ -471,8 +463,9 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 10)
 plt.cla()
-plt.text(0.05, 0.6, 'Correlation = %s' % round(correlation_value, 4))
-plt.text(0.05, 0.3, 'Normalized = %s' % round(correlation_value_normalized, 4))
+plt.text(0.05, 0.75, 'Correlation = %s' % round(correlation_value, 4))
+plt.text(0.05, 0.5, '"Normalized" = %s' % round(correlation_value_normalized, 4))
+plt.text(0.05, 0.25, 'Normalized = %s' % round(np.amax(template_matched), 4))
 plt.xticks([])
 plt.yticks([])
 
@@ -491,8 +484,23 @@ plt.yticks([])
 
 plt.show()
 
-plt.savefig(os.path.join(writelocation, figtitle))
+# Create output figure title
+figextension = '.jpg'
+figtitle = '%s_%s_%s_%s_%s%s' % (filename1, frame1, filename2, frame2, stamp, figextension)
 
-print (figtitle)
+WriteFile = True
+
+## Write results to csv output file
+if WriteFile:
+        with open(os.path.join(writelocation_output, outputfile), mode='a', newline='') as csvfile:
+                outputwriter = csv.writer(csvfile)
+                outputwriter.writerow([figtitle, '', objecttype1, distance1, filename1, frame1,
+                                        objecttype2, distance2, filename2, frame2, '',
+                                        correlation_value, correlation_value_normalized, ssim_value, '',
+                                        img1_rotangle, roi1_x, roi1_y, img2_rotangle, roi2_x, roi2_y])
+        plt.savefig(os.path.join(writelocation, figtitle))
+        print (figtitle)
+else:
+        print ('Figure not saved')
 
 print ("Done")
