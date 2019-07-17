@@ -344,9 +344,6 @@ mag_spect_roi2 = takedft_roi2[2]
 # Correlate FFTs
 correlation = signal.correlate2d(mag_spect_roi1, mag_spect_roi2, fillvalue=0)
 
-# Try template matching
-template_matched = cv2.matchTemplate(mag_spect_roi1, mag_spect_roi2, cv2.TM_CCORR_NORMED)
-
 #Correlate FFTs to themselves and extract value results
 auto1 = signal.correlate2d(mag_spect_roi1, mag_spect_roi1, fillvalue=0)
 auto2 = signal.correlate2d(mag_spect_roi2, mag_spect_roi2, fillvalue=0)
@@ -359,10 +356,14 @@ avg_ssim, ssim_image = ssim(mag_spect_roi1, mag_spect_roi2, full=True)
 
 # Image similarity results (at center, where FFTs are aligned)
 ssim_value = ssim_image[n][n]
-correlation_value = correlation[2*n][2*n]
+ccorr_value = correlation[2*n][2*n]
+
+# Use template matching to find normalized cross-correlation
+template_matched = cv2.matchTemplate(mag_spect_roi1, mag_spect_roi2, cv2.TM_CCORR_NORMED)
+nccorr_value = np.amax(template_matched)
 
 # Normalized correlation value (to average of auto-correlation values)
-correlation_value_normalized = correlation_value / ((auto1_value + auto2_value) / 2.0)
+ccorr_value_handnorm = ccorr_value / ((auto1_value + auto2_value) / 2.0)
 
 ## Show results
 
@@ -463,9 +464,9 @@ plt.yticks([])
 
 plt.subplot(figrows, figcolumns, 10)
 plt.cla()
-plt.text(0.05, 0.75, 'Correlation = %s' % round(correlation_value, 4))
-plt.text(0.05, 0.5, '"Normalized" = %s' % round(correlation_value_normalized, 4))
-plt.text(0.05, 0.25, 'Normalized = %s' % round(np.amax(template_matched), 4))
+plt.text(0.05, 0.75, 'Correlation = %s' % round(ccorr_value, 4))
+plt.text(0.05, 0.5, 'Hand-Normalized = %s' % round(ccorr_value_handnorm, 4))
+plt.text(0.05, 0.25, 'Normalized = %s' % round(nccorr_value, 4))
 plt.xticks([])
 plt.yticks([])
 
@@ -496,11 +497,11 @@ if WriteFile:
                 outputwriter = csv.writer(csvfile)
                 outputwriter.writerow([figtitle, '', objecttype1, distance1, filename1, frame1,
                                         objecttype2, distance2, filename2, frame2, '',
-                                        correlation_value, correlation_value_normalized, ssim_value, '',
+                                        ccorr_value, ccorr_value_handnorm, nccorr_value, ssim_value, '',
                                         img1_rotangle, roi1_x, roi1_y, img2_rotangle, roi2_x, roi2_y])
         plt.savefig(os.path.join(writelocation, figtitle))
         print (figtitle)
 else:
         print ('Figure not saved')
 
-print ("Done")
+print ('Done')
