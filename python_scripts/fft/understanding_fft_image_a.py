@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 
-file = '2016-07-30_014634'
+file = '2016-07-25_221513'
 frameno = '150'
 extension = '.jpg'
 readpath = '/Users/icunitz/Desktop/bat_detection/frames/' + file + '/frame' + frameno + extension
@@ -53,6 +53,13 @@ crow, ccol = int(rows/2) , int(cols/2)
 # mask_area = (x - center[0]) ** 2 + (y - center[1]) ** 2 <= r*r
 # mask[mask_area] = 1
 
+mask = np.zeros((rows, cols, 2), np.uint8)
+r = 10
+center = [crow, ccol]
+x, y = np.ogrid[:rows, :cols]
+mask_area = (x - center[0]) ** 2 + (y - center[1]) ** 2 <= r*r
+mask[mask_area] = 1
+
 ## Different filter
 ## Center square is 1, remaining all zeros
 # n = 10
@@ -61,16 +68,16 @@ crow, ccol = int(rows/2) , int(cols/2)
 
 ## HIgh pass filter
 ## Circular HPF mask, center circle is 0, remaining all ones
-mask = np.ones((rows, cols, 2), np.uint8)
-r = 50
-center = [crow, ccol]
-x, y = np.ogrid[:rows, :cols]
-mask_area = (x - center[0]) ** 2 + (y - center[1]) ** 2 <= r*r
-mask[mask_area] = 0
+# mask = np.ones((rows, cols, 2), np.uint8)
+# r = 50
+# center = [crow, ccol]
+# x, y = np.ogrid[:rows, :cols]
+# mask_area = (x - center[0]) ** 2 + (y - center[1]) ** 2 <= r*r
+# mask[mask_area] = 0
 
 # Apply mask
 fshift = dft_shift * mask
-fshift_mask_mag = 20 * np.log(cv2.magnitude(fshift[:, :, 0], fshift[:, :, 1]))
+fshift_mask_mag = np.log(cv2.magnitude(fshift[:, :, 0], fshift[:, :, 1]))
 
 # Apply inverse FFT
 f_ishift = np.fft.ifftshift(fshift)
