@@ -1,35 +1,32 @@
+# Import useful libraries
 import cv2
 import os
 
-# print(cv2.__version__)
-
 # Set up read and write paths
-parentpath_read = '/Users/icunitz/Desktop/clear_background/'
-parentpath_write = '/Users/icunitz/Desktop/bat_detection/frames/clear_background/'
+category = 'insects'
+parentpath_read = '/Users/icunitz/Desktop/analysis/vids/%s' % category
+parentpath_write = '/Users/icunitz/Desktop/analysis/frames/%s/' % category
 extension = '.avi'
 
-for subdir, dirs, files in os.walk(parentpath_read):
-    for file in files:
-        # print(os.path.join(parentpath_read, subdir, file))
-        if file.endswith(extension):
-            readpath = os.path.join(parentpath_read, subdir, file)
-            print (readpath)
-            writepath = os.path.join(parentpath_write, readpath[40:-4])
-            print (writepath)
-            
-            vidcap = cv2.VideoCapture(readpath)
-            
-            success,image = vidcap.read()
-            count = 0
+for file in os.listdir(parentpath_read):
+    if file.endswith(extension):
+        readpath = os.path.join(parentpath_read, file)
+        writepath = os.path.join(parentpath_write, file)
+        
+        vidcap = cv2.VideoCapture(readpath)
+        
+        success,image = vidcap.read()
+        count = 0
+        
+        success = True
 
-            if not os.path.exists(writepath):
-                os.makedirs(writepath)
-                success = True
-            else:
-                success = False
-
-            while success:
-                cv2.imwrite(os.path.join(writepath, "frame%d.jpg" % count), image)
-                success, image = vidcap.read()
-                print ('Read a new frame: ', success)
-                count += 1
+        if not os.path.exists(writepath):
+            os.makedirs(writepath)
+        while success:
+            writefile = os.path.join(writepath, "%s_frame%d.jpg" % (file[:-4], count))
+            cv2.imwrite(writefile, image)
+            success, image = vidcap.read()
+            # print ('Read a new frame: ', success)
+            count += 1
+        
+        print ('Done: ' + writepath)
