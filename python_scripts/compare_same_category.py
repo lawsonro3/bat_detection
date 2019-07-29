@@ -102,7 +102,6 @@ for combination in comb(sorted(os.listdir(frame_path)), 2):
         roi1_rot_mag_spect = takedft(roi1_rot_gray)[2]
 
         # Compare rotated ROI1 to ROI2s
-        print(file2)
         roi2_x = rois[file2][0]
         roi2_y = rois[file2][1]
 
@@ -137,7 +136,7 @@ for comparison in comparison_dict:
 # Write max angles and values to Excel sheet
 for comparison in max_dict:
     file1 = comparison[:comparison.find('_' + category[:-1])]
-    file2 = comparison[(1 + comparison.find('_' + category[:-1])):]
+    file2 = comparison[(1 + comparison.find('_' + category[:-1]):]
 
     with open(output_path, mode='a', newline='') as csvfile:
         outputwriter = csv.writer(csvfile)

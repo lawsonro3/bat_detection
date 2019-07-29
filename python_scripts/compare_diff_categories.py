@@ -103,7 +103,6 @@ for file1 in sorted(os.listdir(frame1_path)):
 
         # Compare rotated ROI1 to ROI2s
         for file2 in sorted(os.listdir(frame2_path)):
-            print(file2)
             roi2_x = rois2[file2][0]
             roi2_y = rois2[file2][1]
 
