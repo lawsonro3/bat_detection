@@ -1,4 +1,1 @@
 Filename 1,Filename 2,Max SSIM,Max nccorr,Max SSIM angle,Max nccorr angle,ROI 1 x,ROI 1 y,ROI 2 x,ROI 2 y
-bat_125781_frame0034.jpg,bat_125781_frame0034.jpg_bat_125986_frame0110.jpg,0.9968494251948491,0.99124944,28,188,513,367,543,57
-bat_125781_frame0034.jpg,bat_125781_frame0034.jpg_bat_136000_frame0211.jpg,0.9939465117658007,0.9908139,264,228,513,367,87,321
-bat_125986_frame0110.jpg,bat_125986_frame0110.jpg_bat_136000_frame0211.jpg,0.983875050369964,0.988277,68,36,543,57,87,321
