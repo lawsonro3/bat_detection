@@ -136,7 +136,7 @@ for comparison in comparison_dict:
 # Write max angles and values to Excel sheet
 for comparison in max_dict:
     file1 = comparison[:comparison.find('_' + category[:-1])]
-    file2 = comparison[(1 + comparison.find('_' + category[:-1]):]
+    file2 = comparison[(1 + comparison.find('_' + category[:-1])):]
 
     with open(output_path, mode='a', newline='') as csvfile:
         outputwriter = csv.writer(csvfile)
