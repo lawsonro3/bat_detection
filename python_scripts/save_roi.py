@@ -4,7 +4,7 @@ import numpy as np
 import csv
 import os
 
-category = 'bats'
+category = 'insects'
 
 n = 20
 s = n * 2 + 1 # Length of square sides
@@ -25,7 +25,7 @@ outputfolder2 = 'final'
 writelocation = os.path.join(homefolder, outputfolder1, outputfolder2)
 outputfile = 'roi_locations_%s.csv' % category
 
-for file in os.listdir(readlocation):
+for file in sorted(os.listdir(readlocation)):
         readpath = os.path.join(readlocation, file)
 
         ref_location = [(40, 40)] # List to hold click locations, starting with generic location
@@ -67,20 +67,3 @@ for file in os.listdir(readlocation):
 
         print ('Saved ROI coordinates: %s' % file)
 
-
-
-
-# # Define image rotating function
-# def rotate(image_name, angle_deg, ref_location_list):
-#     global s
-# 
-#     x = ref_location_list[-1][0]
-#     y = ref_location_list[-1][1]
-# 
-#     M = cv2.getRotationMatrix2D((x, y), angle_deg, 1)
-#     return cv2.warpAffine(image_name, M, (s, s))
-# 
-# #for angle in np.arange(0, 360, 4):
-#    roi1_rotated = rotate(roi1, angle)
-#    # take FFT of roi_rotated
-#

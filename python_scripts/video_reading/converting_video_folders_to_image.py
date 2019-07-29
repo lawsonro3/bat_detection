@@ -2,8 +2,9 @@
 import cv2
 import os
 
+category = 'bird_groups'
+
 # Set up read and write paths
-category = 'insects'
 parentpath_read = '/Users/icunitz/Desktop/analysis/vids/%s' % category
 parentpath_write = '/Users/icunitz/Desktop/analysis/frames/%s/' % category
 extension = '.avi'
@@ -23,7 +24,7 @@ for file in os.listdir(parentpath_read):
         if not os.path.exists(writepath):
             os.makedirs(writepath)
         while success:
-            writefile = os.path.join(writepath, "%s_frame%d.jpg" % (file[:-4], count))
+            writefile = os.path.join(writepath, "%s_frame%s.jpg" % (file[:-4], '{:04d}'.format(count)))
             cv2.imwrite(writefile, image)
             success, image = vidcap.read()
             # print ('Read a new frame: ', success)
