@@ -2,7 +2,7 @@
 import cv2
 import os
 
-category = 'bird_groups'
+category = 'last_bat'
 
 # Set up read and write paths
 parentpath_read = '/Users/icunitz/Desktop/analysis/vids/%s' % category
