@@ -4,7 +4,7 @@ import numpy as np
 import csv
 import os
 
-category = 'insects'
+category = 'bird_individuals'
 
 n = 20
 s = n * 2 + 1 # Length of square sides
@@ -26,44 +26,48 @@ writelocation = os.path.join(homefolder, outputfolder1, outputfolder2)
 outputfile = 'roi_locations_%s.csv' % category
 
 for file in sorted(os.listdir(readlocation)):
-        readpath = os.path.join(readlocation, file)
+        if file.endswith('.jpg'):
 
-        ref_location = [(40, 40)] # List to hold click locations, starting with generic location
-        # Click event - to find region of interest
-        def click_event(event, x, y, flags, param):
-            if event == cv2.EVENT_LBUTTONDOWN:
-                ref_location.append((x, y))
+                readpath = os.path.join(readlocation, file)
 
-        img = cv2.imread(readpath)
-        windowName = file
+                ref_location = [(40, 40)] # List to hold click locations, starting with generic location
+                # Click event - to find region of interest
+                def click_event(event, x, y, flags, param):
+                    if event == cv2.EVENT_LBUTTONDOWN:
+                        ref_location.append((x, y))
 
-        # Show image and circle around clicked locations
-        while True:
-            # Show frame
-            img_clone = img.copy()
+                img = cv2.imread(readpath)
+                windowName = file
 
-            cv2.namedWindow(windowName)
-            cv2.setMouseCallback(windowName, click_event)
+                # Show image and circle around clicked locations
+                while True:
+                    # Show frame
+                    img_clone = img.copy()
 
-            cv2.circle(img_clone, (ref_location[-1][0], ref_location[-1][1]), r, (0, 0, 0), circlethickness)
-            cv2.imshow(windowName, img_clone)
+                    cv2.namedWindow(windowName)
+                    cv2.setMouseCallback(windowName, click_event)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                    cv2.circle(img_clone, (ref_location[-1][0], ref_location[-1][1]), r, (0, 0, 0), circlethickness)
+                    cv2.rectangle(img_clone, (ref_location[-1][0] - n, ref_location[-1][1]- n), (ref_location[-1][0] + n, ref_location[-1][1] + n), (0, 0, 0), circlethickness)
+                    cv2.imshow(windowName, img_clone)
 
-        # Save last clicked coordinates
-        roi_x = ref_location[-1][0]
-        roi_y = ref_location[-1][1]
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
 
-        WriteFile = True
+                # Save last clicked coordinates
+                roi_x = ref_location[-1][0]
+                roi_y = ref_location[-1][1]
 
-        ## Write results to csv output file
-        if WriteFile:
-                with open(os.path.join(writelocation, outputfile), mode='a', newline='') as csvfile:
-                        outputwriter = csv.writer(csvfile)
-                        outputwriter.writerow([file, roi_x, roi_y])
-        else:
-                print ('ROI coordinates not saved')
+                WriteFile = True
 
-        print ('Saved ROI coordinates: %s' % file)
+                ## Write results to csv output file
+                if WriteFile:
+                        with open(os.path.join(writelocation, outputfile), mode='a', newline='') as csvfile:
+                                outputwriter = csv.writer(csvfile)
+                                outputwriter.writerow([file, roi_x, roi_y])
+                else:
+                        print ('ROI coordinates not saved')
 
+                print ('Saved ROI coordinates: %s' % file)
+
+cv2.destroyAllWindows()

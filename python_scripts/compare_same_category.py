@@ -77,9 +77,10 @@ comparison_dict = {}
 for combination in comb(sorted(os.listdir(frame_path)), 2):
     file1 = combination[0]
     file2 = combination[1]
-    comparison_dict['%s_%s' % (file1, file2)] = {}
-    for angle in np.arange(0, 361, 4):
-        comparison_dict['%s_%s' % (file1, file2)][angle] = {}
+    if file1.endswith(frame_extension) and file2.endswith(frame_extension):
+        comparison_dict['%s_%s' % (file1, file2)] = {}
+        for angle in np.arange(0, 361, 4):
+            comparison_dict['%s_%s' % (file1, file2)][angle] = {}
 
 plt.close() # Close any previous plt plots
 
@@ -88,34 +89,38 @@ for combination in comb(sorted(os.listdir(frame_path)), 2):
     file1 = combination[0]
     file2 = combination[1]
 
-    # Load image 1
-    img1 = cv2.imread(os.path.join(frame_path, file1))
+    if file1.endswith(frame_extension) and file2.endswith(frame_extension):
 
-    # Extract ROI1 data
-    roi1_x, roi1_y = rois[file1][0], rois[file1][1]
+        # Load image 1
+        img1 = cv2.imread(os.path.join(frame_path, file1))
 
-    # Take and rotate ROI1
-    for angle in np.arange(0, 361, 4):
-        # Take rotated ROI 1 and FFT 1
-        roi1_rot = roi(rotate(img1, angle, roi1_x, roi1_y), roi1_x, roi1_y)
-        roi1_rot_gray = cv2.cvtColor(roi1_rot, cv2.COLOR_BGR2GRAY)
-        roi1_rot_mag_spect = takedft(roi1_rot_gray)[2]
+        # Extract ROI1 data
+        roi1_x, roi1_y = rois[file1][0], rois[file1][1]
 
-        # Compare rotated ROI1 to ROI2s
-        roi2_x = rois[file2][0]
-        roi2_y = rois[file2][1]
+        # Take and rotate ROI1
+        for angle in np.arange(0, 361, 4):
+            # Take rotated ROI 1 and FFT 1
+            roi1_rot = roi(rotate(img1, angle, roi1_x, roi1_y), roi1_x, roi1_y)
+            roi1_rot_gray = cv2.cvtColor(roi1_rot, cv2.COLOR_BGR2GRAY)
+            roi1_rot_mag_spect = takedft(roi1_rot_gray)[2]
 
-        roi2_mag_spect = np.asarray(rois[file2][3])[0,:,:]
+            # Compare rotated ROI1 to ROI2s
+            roi2_x = rois[file2][0]
+            roi2_y = rois[file2][1]
 
-        # Calculate SSIM of FFTs
-        avg_ssim, ssim_image = ssim(roi1_rot_mag_spect, roi2_mag_spect, full=True)
-        ssim_value = ssim_image[n][n]
+            roi2_mag_spect = np.asarray(rois[file2][3])[0,:,:]
 
-        # Use template matching to calculate normalized cross-correlation of FFTs
-        template_matched = cv2.matchTemplate(roi1_rot_mag_spect, roi2_mag_spect, cv2.TM_CCORR_NORMED)
-        nccorr_value = np.amax(template_matched)
+            # Calculate SSIM of FFTs
+            avg_ssim, ssim_image = ssim(roi1_rot_mag_spect, roi2_mag_spect, full=True)
+            ssim_value = ssim_image[n][n]
 
-        comparison_dict['%s_%s' % (file1, file2)][angle] = [ssim_value, nccorr_value, roi1_x, roi1_y, roi2_x, roi2_y]
+            # Use template matching to calculate normalized cross-correlation of FFTs
+            template_matched = cv2.matchTemplate(roi1_rot_mag_spect, roi2_mag_spect, cv2.TM_CCORR_NORMED)
+            nccorr_value = np.amax(template_matched)
+
+            comparison_dict['%s_%s' % (file1, file2)][angle] = [ssim_value, nccorr_value, roi1_x, roi1_y, roi2_x, roi2_y]
+            
+            print(file1, file2, angle)
 
 # Create dictionary of max angles and values (and ROI locations)
 max_dict = {}

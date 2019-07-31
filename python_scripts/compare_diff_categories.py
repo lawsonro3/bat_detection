@@ -13,7 +13,7 @@ n = 20
 s = n * 2 + 1 # Length of square sides
 
 category1 = 'bats'
-category2 = 'insects'
+category2 = 'bird_individuals'
 
 # Set up .csv input/output file paths
 input_output_location = '/Users/icunitz/Desktop/bat_detection/output/final'
@@ -80,43 +80,47 @@ rois2 = readroi(input2_path, save_roi_fft=True, frame_path=frame2_path)
 comparison_dict = {}
 for file1 in sorted(os.listdir(frame1_path)):
     for file2 in sorted(os.listdir(frame2_path)):
-        comparison_dict['%s_%s' % (file1, file2)] = {}
-        for angle in np.arange(0, 361, 4):
-            comparison_dict['%s_%s' % (file1, file2)][angle] = {}
+        if file1.endswith(frame_extension) and file2.endswith(frame_extension):
+            comparison_dict['%s_%s' % (file1, file2)] = {}
+            for angle in np.arange(0, 361, 4):
+                comparison_dict['%s_%s' % (file1, file2)][angle] = {}
 
 plt.close() # Close any previous plt plots
 
 # Iterate through files
 for file1 in sorted(os.listdir(frame1_path)):
-    # Load image 1
-    img1 = cv2.imread(os.path.join(frame1_path, file1))
+    if file1.endswith(frame_extension):
+        # Load image 1
+        img1 = cv2.imread(os.path.join(frame1_path, file1))
 
-    # Extract ROI1 data
-    roi1_x, roi1_y = rois1[file1][0], rois1[file1][1]
+        # Extract ROI1 data
+        roi1_x, roi1_y = rois1[file1][0], rois1[file1][1]
 
-    # Take and rotate ROI1
-    for angle in np.arange(0, 361, 4):
-        # Take rotated ROI 1 and FFT 1
-        roi1_rot = roi(rotate(img1, angle, roi1_x, roi1_y), roi1_x, roi1_y)
-        roi1_rot_gray = cv2.cvtColor(roi1_rot, cv2.COLOR_BGR2GRAY)
-        roi1_rot_mag_spect = takedft(roi1_rot_gray)[2]
+        # Take and rotate ROI1
+        for angle in np.arange(0, 361, 4):
+            # Take rotated ROI 1 and FFT 1
+            roi1_rot = roi(rotate(img1, angle, roi1_x, roi1_y), roi1_x, roi1_y)
+            roi1_rot_gray = cv2.cvtColor(roi1_rot, cv2.COLOR_BGR2GRAY)
+            roi1_rot_mag_spect = takedft(roi1_rot_gray)[2]
 
-        # Compare rotated ROI1 to ROI2s
-        for file2 in sorted(os.listdir(frame2_path)):
-            roi2_x = rois2[file2][0]
-            roi2_y = rois2[file2][1]
+            # Compare rotated ROI1 to ROI2s
+            for file2 in sorted(os.listdir(frame2_path)):
+                if file2.endswith(frame_extension):
+                    roi2_x = rois2[file2][0]
+                    roi2_y = rois2[file2][1]
 
-            roi2_mag_spect = np.asarray(rois2[file2][3])[0,:,:]
+                    roi2_mag_spect = np.asarray(rois2[file2][3])[0,:,:]
 
-            # Calculate SSIM of FFTs
-            avg_ssim, ssim_image = ssim(roi1_rot_mag_spect, roi2_mag_spect, full=True)
-            ssim_value = ssim_image[n][n]
+                    # Calculate SSIM of FFTs
+                    avg_ssim, ssim_image = ssim(roi1_rot_mag_spect, roi2_mag_spect, full=True)
+                    ssim_value = ssim_image[n][n]
 
-            # Use template matching to calculate normalized cross-correlation of FFTs
-            template_matched = cv2.matchTemplate(roi1_rot_mag_spect, roi2_mag_spect, cv2.TM_CCORR_NORMED)
-            nccorr_value = np.amax(template_matched)
+                    # Use template matching to calculate normalized cross-correlation of FFTs
+                    template_matched = cv2.matchTemplate(roi1_rot_mag_spect, roi2_mag_spect, cv2.TM_CCORR_NORMED)
+                    nccorr_value = np.amax(template_matched)
 
-            comparison_dict['%s_%s' % (file1, file2)][angle] = [ssim_value, nccorr_value, roi1_x, roi1_y, roi2_x, roi2_y]
+                    comparison_dict['%s_%s' % (file1, file2)][angle] = [ssim_value, nccorr_value, roi1_x, roi1_y, roi2_x, roi2_y]
+                    print(file1, file2, angle)
 
 # Create dictionary of max angles and values (and ROI locations)
 max_dict = {}
