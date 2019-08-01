@@ -13,7 +13,8 @@ n = 20
 s = n * 2 + 1 # Length of square sides
 
 category1 = 'bats'
-category2 = 'bird_individuals'
+category2 = 'bird_groups'
+metacategory2 = 'birds'
 
 # Set up .csv input/output file paths
 input_output_location = '/Users/icunitz/Desktop/bat_detection/output/final'
@@ -140,8 +141,8 @@ for comparison in comparison_dict:
 
 # Write max angles and values to Excel sheet
 for comparison in max_dict:
-    file1 = comparison[:comparison.find('_' + category2[:-1])]
-    file2 = comparison[comparison.find(category2[:-1]):]
+    file1 = comparison[:comparison.find('_' + metacategory2[:-1])]
+    file2 = comparison[comparison.find(metacategory2[:-1]):]
 
     with open(output_path, mode='a', newline='') as csvfile:
         outputwriter = csv.writer(csvfile)

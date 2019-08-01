@@ -24,7 +24,7 @@ window2Name = 'Image 2'
 
 # Define FFT function
 def takedft(img_name):
-        dft = cv2.dft(np.float32(img_name), flags = cv2.DFT_COMPLEX_OUTPUT)
+        dt = cv2.dft(np.float32(img_name), flags = cv2.DFT_COMPLEX_OUTPUT)
         dft_shift = np.fft.fftshift(dft)
         magnitude_spectrum = np.log(cv2.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
         return dft, dft_shift, magnitude_spectrum
