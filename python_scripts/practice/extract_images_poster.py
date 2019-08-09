@@ -13,9 +13,9 @@ plt.close() # Close any previous matplotlib.pyplot windows
 n = 20
 s = n * 2 + 1 # Length of square sides
 
-category1 = 'insects'
+category1 = 'bird_groups'
 
-file1 = 'insect_127862_frame0069.jpg'
+file1 = 'bird_250439_frame0177.jpg'
 
 readlocation_frames = '/Users/icunitz/Desktop/bat_detection/frames/final'
 readpath1 = os.path.join(readlocation_frames, category1, file1)
