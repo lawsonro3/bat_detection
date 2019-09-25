@@ -4,7 +4,7 @@ Repository structure
 
 bat_vids: A few videos of bats, for testing
 
-frames:
+frames:\\
     - frames from some of the bat_vids videos, used for intermediate analysis
     - fft_test_final: frames used for final testing from fft analysis
 output:
