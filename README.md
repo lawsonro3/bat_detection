@@ -1,6 +1,6 @@
 ## Bat Detection
 
-# Repository structure
+### Repository structure
 
 bat_vids: A few videos of bats, for testing
 
